@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebateSphere - Dashboard</title>
+    <style>
+        /* Global Styles (repeated for self-containment) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #E3F2FD, #D5F5E3, #FFF3CD, #FFD1DC); /* Pastel gradient colors */
+            background-size: 400% 400%;
+            animation: pastel-gradient-animation 15s ease infinite;
+            color: #333;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: none; /* Hide default cursor */
+        }
+
+        @keyframes pastel-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Custom Cursor Styles (repeated) */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            background-color: #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out;
+        }
+
+        .custom-cursor.active {
+            background-color: #555;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 15px 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(8px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .dashboard-header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #6A5ACD;
+            text-decoration: none;
+        }
+
+        .dashboard-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .dashboard-header .user-info span {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .dashboard-header .user-info a {
+            text-decoration: none;
+            color: #FF8EB8; /* Pink logout link */
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dashboard-header .user-info a:hover {
+            background-color: rgba(255, 142, 184, 0.2);
+            color: #FF69B4;
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard-main {
+            display: flex;
+            padding-top: 80px; /* Space for fixed header */
+            min-height: calc(100vh - 80px); /* Adjust height */
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            position: sticky; /* Sticky sidebar */
+            top: 80px; /* Below the header */
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            animation: slideInLeft 0.8s ease-out; /* Animation for sidebar */
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 15px 30px;
+            text-decoration: none;
+            color: #555;
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 0 25px 25px 0; /* Rounded right side */
+        }
+
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background-color: rgba(186, 130, 255, 0.2);
+            color: #6A5ACD;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            max-width: calc(100% - 250px); /* Adjust width based on sidebar */
+            margin-left: 20px; /* Spacing between sidebar and content */
+        }
+
+        .dashboard-section {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            animation: fadeInScale 0.8s ease-out forwards; /* Fade in and slightly scale up */
+            opacity: 0; /* Start hidden */
+            transform: scale(0.98); /* Start slightly smaller */
+        }
+
+        .dashboard-section:nth-child(1) { animation-delay: 0.2s; }
+        .dashboard-section:nth-child(2) { animation-delay: 0.4s; }
+        .dashboard-section:nth-child(3) { animation-delay: 0.6s; }
+
+
+        .dashboard-section h2 {
+            font-size: 2em;
+            color: #5C4B51;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #D5F5E3; /* Light pastel green underline */
+            padding-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background-color: #FFB3D9; /* Soft pink */
+            color: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 180px; /* Fixed width for cards */
+            height: 180px; /* Fixed height for cards */
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #FF8EB8; /* Darker pink */
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .action-btn .btn-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .dashboard-main {
+                flex-direction: column; /* Stack sidebar and main content */
+                padding-top: 150px; /* More space for header + potentially stacked nav */
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                border-radius: 0;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                padding: 10px 0;
+            }
+            .sidebar ul {
+                display: flex; /* Make sidebar items horizontal */
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .sidebar ul li a {
+                padding: 10px 15px;
+                border-radius: 15px;
+            }
+            .main-content {
+                max-width: 100%;
+                margin-left: 0;
+                padding: 20px;
+            }
+            .dashboard-header nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .dashboard-header .logo {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-header {
+                padding: 15px 10px;
+            }
+            .dashboard-header .logo {
+                font-size: 1.5em;
+            }
+            .dashboard-header .user-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .action-btn {
+                width: 100%;
+                height: 150px;
+            }
+            .dashboard-section h2 {
+                font-size: 1.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-cursor"></div>
+
+    <header class="dashboard-header">
+        <nav>
+            <div class="logo">ArguMate</div>
+            <div class="user-info">
+                <span>Welcome, Debater!</span> <!-- Placeholder for dynamic username -->
+                <a href="index.html">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <aside class="sidebar">
+            <ul>
+                <li><a href="learn.html" class="active">Learn Formats</a></li>
+                <li><a href="practice.html">Practice Debate</a></li>
+                <li><a href="#">My Progress</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </aside>
+        <section class="main-content">
+            <div class="dashboard-section">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="learn.html" class="action-btn">
+                        <div class="btn-icon">📚</div>
+                        <p>Explore Debating Formats</p>
+                    </a>
+                    <a href="practice.html" class="action-btn">
+                        <div class="btn-icon">🗣️</div>
+                        <p>Start a Practice Debate</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h2>Your Progress Snapshot</h2>
+                <p>Welcome to your personal dashboard! Here you can quickly access learning resources and start practicing. We'll show your debate statistics and achievements here soon!</p>
+                <!-- Placeholder for actual progress visualization (e.g., charts) -->
+                <div style="height: 150px; background-color: rgba(200, 200, 255, 0.3); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #6A5ACD; font-weight: 600;">
+                    Your progress charts will appear here!
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h2>Latest Updates & Tips</h2>
+                <p>Stay tuned for new motions, learning modules, and community events!</p>
+                <ul>
+                    <li>New Article: "Advanced Rebuttal Techniques in BP" - Coming Soon!</li>
+                    <li>Community Challenge: Master the Whip Speeches!</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Custom Cursor JavaScript
+        const customCursor = document.querySelector('.custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            customCursor.style.left = e.clientX + 'px';
+            customCursor.style.top = e.clientY + 'px';
+        });
+        document.addEventListener('mousedown', () => {
+            customCursor.classList.add('active');
+        });
+        document.addEventListener('mouseup', () => {
+            customCursor.classList.remove('active');
+        });
+
+        // Highlight active sidebar link
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+            sidebarLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else if (currentPath === 'dashboard.html' && link.getAttribute('href') === 'learn.html') {
+                    // Default active if on dashboard and no specific link matches
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

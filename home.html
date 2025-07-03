@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argumate - Master the Art of Debate with AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="home-styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-gavel text-white text-lg"></i>
+                    </div>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Argumate
+                    </span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="hover:text-purple-400 transition-colors">Features</a>
+                    <a href="#how-it-works" class="hover:text-purple-400 transition-colors">How It Works</a>
+                    <a href="#leaderboard" class="hover:text-purple-400 transition-colors">Leaderboard</a>
+                    <a href="#pricing" class="hover:text-purple-400 transition-colors">Pricing</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="px-4 py-2 text-purple-400 hover:text-white transition-colors">
+                        Sign In
+                    </a>
+                    <a href="index.html" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- 3D Background -->
+        <div id="hero-3d" class="absolute inset-0 z-0"></div>
+        
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0 z-10">
+            <div class="floating-orb orb-1"></div>
+            <div class="floating-orb orb-2"></div>
+            <div class="floating-orb orb-3"></div>
+            <div class="floating-orb orb-4"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-20 container mx-auto px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <!-- Level Badge -->
+                <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-sm border border-purple-500/30 rounded-full px-6 py-2 mb-8 animate-fade-in">
+                    <i class="fas fa-trophy text-yellow-400"></i>
+                    <span class="text-sm font-semibold">Level Up Your Debate Skills</span>
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-slide-up">
+                    Master the Art of
+                    <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient">
+                        Debate
+                    </span>
+                </h1>
+
+                <p class="text-xl md:text-2xl text-gray-300 mb-8 animate-slide-up-delay">
+                    Challenge AI opponents in real-time parliamentary debates. 
+                    <br class="hidden md:block">
+                    Earn XP, unlock achievements, and become a debate champion!
+                </p>
+
+                <!-- Stats Row -->
+                <div class="flex justify-center space-x-8 mb-12 animate-fade-in-delay">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-400" id="debates-count">0</div>
+                        <div class="text-sm text-gray-400">Debates Held</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-pink-400" id="players-count">0</div>
+                        <div class="text-sm text-gray-400">Active Players</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-yellow-400" id="xp-earned">0</div>
+                        <div class="text-sm text-gray-400">XP Earned</div>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up-delay-2">
+                    <a href="index.html" class="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25">
+                        <span class="relative z-10">Start Your Journey</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur opacity-0 group-hover:opacity-30 transition-opacity"></div>
+                    </a>
+                    <button class="flex items-center space-x-2 px-8 py-4 border border-purple-500/50 rounded-full hover:bg-purple-500/10 transition-all" onclick="playDemo()">
+                        <i class="fas fa-play text-purple-400"></i>
+                        <span>Watch Demo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <div class="w-6 h-10 border-2 border-purple-400 rounded-full flex justify-center">
+                <div class="w-1 h-3 bg-purple-400 rounded-full mt-2 animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Why Choose <span class="text-purple-400">Argumate?</span>
+                </h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Experience the future of debate training with AI-powered opponents, 
+                    real-time analysis, and gamified learning.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card group">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Real-Time Speech</h3>
+                    <p class="text-gray-300 mb-6">
+                        Speak naturally and watch your arguments come to life with 
+                        advanced speech-to-text technology.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number">99.5%</span>
+                            <span class="stat-label">Accuracy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card group">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">AI Opponents</h3>
+                    <p class="text-gray-300 mb-6">
+                        Face intelligent AI that adapts to your style and provides 
+                        challenging counterarguments.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">AI Roles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card group">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Performance Analytics</h3>
+                    <p class="text-gray-300 mb-6">
+                        Get detailed insights on your argument structure, 
+                        sentiment, and emotional impact.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number">15+</span>
+                            <span class="stat-label">Metrics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Your Path to <span class="text-purple-400">Mastery</span>
+                </h2>
+                <p class="text-xl text-gray-300">
+                    Follow these simple steps to become a debate champion
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="space-y-12">
+                    <!-- Step 1 -->
+                    <div class="step-item flex items-center space-x-8">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3 class="text-2xl font-bold mb-2">Choose Your Arena</h3>
+                            <p class="text-gray-300">
+                                Select from British or Asian Parliamentary formats and pick your role
+                            </p>
+                        </div>
+                        <div class="step-visual">
+                            <div class="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-item flex items-center space-x-8 flex-row-reverse">
+                        <div class="step-number">2</div>
+                        <div class="step-content text-right">
+                            <h3 class="text-2xl font-bold mb-2">Engage in Battle</h3>
+                            <p class="text-gray-300">
+                                Speak your arguments and watch AI opponents respond in real-time
+                            </p>
+                        </div>
+                        <div class="step-visual">
+                            <div class="w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-comments text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-item flex items-center space-x-8">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3 class="text-2xl font-bold mb-2">Level Up & Earn</h3>
+                            <p class="text-gray-300">
+                                Gain XP, unlock achievements, and climb the leaderboard
+                            </p>
+                        </div>
+                        <div class="step-visual">
+                            <div class="w-24 h-24 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-trophy text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gamification Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    <span class="text-yellow-400">Level Up</span> Your Skills
+                </h2>
+                <p class="text-xl text-gray-300">
+                    Earn rewards, unlock achievements, and compete with debaters worldwide
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Achievement Cards -->
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-medal text-yellow-400"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">First Victory</h4>
+                    <p class="text-sm text-gray-400">Win your first debate</p>
+                    <div class="achievement-progress">
+                        <div class="progress-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-fire text-orange-400"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Debate Streak</h4>
+                    <p class="text-sm text-gray-400">Win 5 debates in a row</p>
+                    <div class="achievement-progress">
+                        <div class="progress-bar" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-crown text-purple-400"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Debate Master</h4>
+                    <p class="text-sm text-gray-400">Reach level 50</p>
+                    <div class="achievement-progress">
+                        <div class="progress-bar" style="width: 30%"></div>
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">
+                        <i class="fas fa-star text-blue-400"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Perfect Score</h4>
+                    <p class="text-sm text-gray-400">Get 100% argument score</p>
+                    <div class="achievement-progress">
+                        <div class="progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leaderboard Section -->
+    <section id="leaderboard" class="py-20 bg-gradient-to-r from-slate-900/50 to-purple-900/50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Global <span class="text-purple-400">Leaderboard</span>
+                </h2>
+                <p class="text-xl text-gray-300">
+                    See how you stack up against the world's best debaters
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="leaderboard-container">
+                    <div class="leaderboard-item rank-1">
+                        <div class="rank-badge">1</div>
+                        <div class="player-avatar">
+                            <img src="/placeholder.svg?height=50&width=50" alt="Player" class="rounded-full">
+                        </div>
+                        <div class="player-info">
+                            <h4 class="font-bold">DebateMaster2024</h4>
+                            <p class="text-sm text-gray-400">Level 87 • 15,420 XP</p>
+                        </div>
+                        <div class="player-stats">
+                            <div class="stat">
+                                <span class="text-green-400 font-bold">98%</span>
+                                <span class="text-xs text-gray-400">Win Rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="leaderboard-item rank-2">
+                        <div class="rank-badge">2</div>
+                        <div class="player-avatar">
+                            <img src="/placeholder.svg?height=50&width=50" alt="Player" class="rounded-full">
+                        </div>
+                        <div class="player-info">
+                            <h4 class="font-bold">ArgumentAce</h4>
+                            <p class="text-sm text-gray-400">Level 82 • 14,890 XP</p>
+                        </div>
+                        <div class="player-stats">
+                            <div class="stat">
+                                <span class="text-green-400 font-bold">95%</span>
+                                <span class="text-xs text-gray-400">Win Rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="leaderboard-item rank-3">
+                        <div class="rank-badge">3</div>
+                        <div class="player-avatar">
+                            <img src="/placeholder.svg?height=50&width=50" alt="Player" class="rounded-full">
+                        </div>
+                        <div class="player-info">
+                            <h4 class="font-bold">LogicLord</h4>
+                            <p class="text-sm text-gray-400">Level 79 • 13,650 XP</p>
+                        </div>
+                        <div class="player-stats">
+                            <div class="stat">
+                                <span class="text-green-400 font-bold">92%</span>
+                                <span class="text-xs text-gray-400">Win Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl md:text-6xl font-bold mb-6">
+                    Ready to Become a
+                    <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Debate Champion?
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-300 mb-12">
+                    Join thousands of debaters who are already mastering their skills with AI
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <a href="index.html" class="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-bold text-xl hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25">
+                        Start Your Journey Now
+                    </a>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400">Free to start • No credit card required</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-gavel text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">Argumate</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        Master the art of debate with AI-powered training and gamified learning.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Product</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">API</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                            <i class="fab fa-twitter text-sm"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                            <i class="fab fa-discord text-sm"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                            <i class="fab fa-github text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2024 Argumate. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/home-animations.js"></script>
+    <script src="js/3d-scene.js"></script>
+</body>
+</html>

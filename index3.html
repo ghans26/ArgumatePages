@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DebateSphere - Practice</title>
+    <style>
+      /* Global Styles (repeated for self-containment) */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background: linear-gradient(
+          135deg,
+          #c7ceea,
+          #ffd1dc,
+          #fff3cd,
+          #d5f5e3
+        ); /* Pastel gradient colors */
+        background-size: 400% 400%;
+        animation: pastel-gradient-animation 15s ease infinite;
+        color: #333;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        cursor: none; /* Hide default cursor */
+      }
+
+      @keyframes pastel-gradient-animation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* Custom Cursor Styles (repeated) */
+      .custom-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 10px;
+        height: 10px;
+        background-color: #000;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s ease-out, height 0.2s ease-out,
+          background-color 0.2s ease-out;
+      }
+
+      .custom-cursor.active {
+        background-color: #555;
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Header (consistent with dashboard) */
+      .dashboard-header {
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 15px 50px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(8px);
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 50;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+      }
+
+      .dashboard-header nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .dashboard-header .logo a {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: #6a5acd;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .dashboard-header .logo a:hover {
+        color: #8a2be2;
+      }
+
+      .nav-links {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+      }
+
+      .nav-links li {
+        margin-left: 30px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: #555;
+        font-weight: 600;
+        font-size: 1.1em;
+        padding: 8px 15px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease, color 0.3s ease,
+          transform 0.3s ease;
+      }
+
+      .nav-links a:hover,
+      .nav-links a.active {
+        background-color: rgba(186, 130, 255, 0.2);
+        color: #6a5acd;
+        transform: translateY(-3px);
+      }
+
+      /* Practice Page Specific Styles */
+      .practice-main {
+        padding-top: 100px; /* Space for fixed header */
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Align top on large screens */
+        min-height: calc(100vh - 100px); /* Fill remaining height */
+        padding-bottom: 50px;
+      }
+
+      .practice-container {
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin: 20px;
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+        animation: fadeIn 1s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      .practice-container h1 {
+        font-size: 2.5em;
+        color: #5c4b51;
+        margin-bottom: 30px;
+        position: relative;
+        padding-bottom: 15px;
+      }
+
+      .practice-container h1::after {
+        content: "";
+        width: 80px;
+        height: 5px;
+        background-color: #a3d8f4; /* Pastel blue underline */
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 2px;
+      }
+
+      .form-step {
+        display: none; /* Hidden by default, shown by JS */
+        padding: 20px 0;
+        animation: slideInFromRight 0.6s ease-out forwards;
+      }
+
+      .form-step.active {
+        display: block; /* Show active step */
+      }
+
+      .form-step h2 {
+        font-size: 1.8em;
+        color: #6a5acd;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .choice-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 30px;
+      }
+
+      .choice-card {
+        background-color: #fff;
+        border: 2px solid rgba(186, 130, 255, 0.3); /* Light pastel border */
+        border-radius: 15px;
+        padding: 20px 30px;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #555;
+        cursor: pointer;
+        flex: 1;
+        min-width: 180px;
+        max-width: 280px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: background-color 0.3s ease, border-color 0.3s ease,
+          transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+      }
+
+      .choice-card:hover {
+        background-color: rgba(186, 130, 255, 0.1);
+        border-color: #6a5acd;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .choice-card.selected {
+        background-color: #a3d8f4; /* Selected background */
+        color: #fff;
+        border-color: #a3d8f4;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(163, 216, 244, 0.4);
+      }
+
+      .input-group {
+        position: relative;
+        margin-bottom: 30px;
+      }
+
+      .input-group textarea {
+        width: calc(100% - 20px); /* Account for padding */
+        padding: 15px 10px;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        font-size: 1.1em;
+        outline: none;
+        resize: vertical; /* Allow vertical resizing */
+        min-height: 100px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        color: #555;
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+
+      .input-group textarea:focus {
+        border-color: #ffb3d9;
+        box-shadow: 0 0 10px rgba(255, 179, 217, 0.4);
+      }
+
+      .cta-button {
+        display: inline-block;
+        background-color: #ffb3d9; /* Soft pink */
+        color: #fff;
+        padding: 15px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 1.2em;
+        font-weight: 600;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.3s ease, transform 0.3s ease,
+          box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: none; /* Ensure no default button border */
+        cursor: pointer;
+      }
+
+      .cta-button:hover {
+        background-color: #ff8eb8; /* Darker pink */
+        transform: translateY(-7px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideInFromRight {
+        from {
+          opacity: 0;
+          transform: translateX(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* NEW: Toast Notification Styles */
+      .toast-notification {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 8px;
+        padding: 16px;
+        position: fixed;
+        z-index: 10000;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 30px;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+      .toast-notification.show {
+        visibility: visible;
+        opacity: 1;
+        bottom: 50px;
+      }
+      .toast-notification.error {
+        background-color: #e74c3c; /* Red for errors */
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .dashboard-header {
+          padding: 15px 20px;
+          flex-direction: column;
+          gap: 15px;
+        }
+        .nav-links {
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+        .nav-links li {
+          margin-left: 0;
+        }
+        .practice-main {
+          padding-top: 120px;
+        }
+        .practice-container {
+          padding: 30px 20px;
+          margin: 10px;
+        }
+        .practice-container h1 {
+          font-size: 2em;
+        }
+        .form-step h2 {
+          font-size: 1.5em;
+        }
+        .choice-card {
+          min-width: unset;
+          width: 100%;
+          padding: 15px 20px;
+          font-size: 1em;
+        }
+        .input-group textarea {
+          width: calc(100% - 10px);
+          padding: 10px 5px;
+          font-size: 1em;
+        }
+        .cta-button {
+          font-size: 1em;
+          padding: 12px 25px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="custom-cursor"></div>
+
+    <header class="dashboard-header">
+      <nav>
+        <div class="logo">
+          <a href="dashboard.html">ArguMate</a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="learn.html">Learn</a></li>
+          <li><a href="practice.html" class="active">Practice</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="practice-main">
+      <div class="practice-container">
+        <h1>Start a Practice Debate</h1>
+        <div class="practice-form-steps">
+          <div id="step-1" class="form-step active">
+            <h2>1. Choose Format</h2>
+            <div class="choice-cards">
+              <button class="choice-card" data-format="british">
+                British Parliamentary
+              </button>
+              <button class="choice-card" data-format="asian">
+                Asian Parliamentary
+              </button>
+            </div>
+          </div>
+
+          <div id="step-2" class="form-step">
+            <h2>2. Choose Role (<span id="format-display"></span>)</h2>
+            <div id="role-choices" class="choice-cards"></div>
+          </div>
+
+          <div id="step-3" class="form-step">
+            <h2>3. Choose Level</h2>
+            <div class="choice-cards">
+              <button class="choice-card" data-level="beginner">
+                Beginner
+              </button>
+              <button class="choice-card" data-level="intermediate">
+                Intermediate
+              </button>
+              <button class="choice-card" data-level="advanced">
+                Advanced
+              </button>
+            </div>
+          </div>
+
+          <div id="step-4" class="form-step">
+            <h2>4. Enter the Motion</h2>
+            <div class="input-group">
+              <textarea
+                id="motion-input"
+                rows="4"
+                placeholder="E.g., This House would abolish all private schools."
+              ></textarea>
+            </div>
+            <button id="start-debate-btn" class="cta-button">
+              Enter Debating Environment
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast" class="toast-notification"></div>
+
+    <script>
+      // Custom Cursor JavaScript (unchanged)
+      const customCursor = document.querySelector(".custom-cursor");
+      document.addEventListener("mousemove", (e) => {
+        customCursor.style.left = e.clientX + "px";
+        customCursor.style.top = e.clientY + "px";
+      });
+      document.addEventListener("mousedown", () =>
+        customCursor.classList.add("active")
+      );
+      document.addEventListener("mouseup", () =>
+        customCursor.classList.remove("active")
+      );
+
+      // MODIFIED: Practice Page Logic with Toast and Redirect
+      document.addEventListener("DOMContentLoaded", () => {
+        const formatButtons = document.querySelectorAll("#step-1 .choice-card");
+        const roleChoicesContainer = document.getElementById("role-choices");
+        const formatDisplay = document.getElementById("format-display");
+        const levelButtons = document.querySelectorAll("#step-3 .choice-card");
+        const motionInput = document.getElementById("motion-input");
+        const startDebateBtn = document.getElementById("start-debate-btn");
+        const toastElement = document.getElementById("toast");
+
+        let selectedFormat = "";
+        let selectedRole = "";
+        let selectedLevel = "";
+
+        const bpRoles = [
+          "Opening Government (PM)",
+          "Opening Government (DPM)",
+          "Opening Opposition (LO)",
+          "Opening Opposition (DLO)",
+          "Closing Government (MG)",
+          "Closing Government (GW)",
+          "Closing Opposition (MO)",
+          "Closing Opposition (OW)",
+        ];
+        const apRoles = [
+          "Prime Minister",
+          "Deputy Prime Minister",
+          "Government Whip",
+          "Leader of Opposition",
+          "Deputy Leader of Opposition",
+          "Opposition Whip",
+        ];
+
+        function showNextStep(currentStepId, nextStepId) {
+          const currentStepElement = document.getElementById(currentStepId);
+          const nextStepElement = document.getElementById(nextStepId);
+
+          currentStepElement.classList.remove("active");
+          nextStepElement.classList.add("active");
+        }
+
+        function showToast(message, isError = false) {
+          toastElement.textContent = message;
+          toastElement.className = "toast-notification show"; // Reset class
+          if (isError) {
+            toastElement.classList.add("error");
+          }
+
+          // Hide the toast after 3 seconds
+          setTimeout(() => {
+            toastElement.classList.remove("show");
+          }, 3000);
+        }
+
+        formatButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            formatButtons.forEach((btn) => btn.classList.remove("selected"));
+            e.target.classList.add("selected");
+            selectedFormat = e.target.dataset.format;
+            formatDisplay.textContent =
+              selectedFormat === "british"
+                ? "British Parliamentary"
+                : "Asian Parliamentary";
+
+            roleChoicesContainer.innerHTML = "";
+            const roles = selectedFormat === "british" ? bpRoles : apRoles;
+            roles.forEach((role) => {
+              const roleButton = document.createElement("button");
+              roleButton.className = "choice-card";
+              roleButton.dataset.role = role;
+              roleButton.textContent = role;
+              roleChoicesContainer.appendChild(roleButton);
+            });
+
+            document
+              .querySelectorAll("#step-2 .choice-card")
+              .forEach((roleBtn) => {
+                roleBtn.addEventListener("click", (event) => {
+                  document
+                    .querySelectorAll("#step-2 .choice-card")
+                    .forEach((btn) => btn.classList.remove("selected"));
+                  event.target.classList.add("selected");
+                  selectedRole = event.target.dataset.role;
+                  showNextStep("step-2", "step-3");
+                });
+              });
+
+            showNextStep("step-1", "step-2");
+          });
+        });
+
+        levelButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
+            levelButtons.forEach((btn) => btn.classList.remove("selected"));
+            e.target.classList.add("selected");
+            selectedLevel = e.target.dataset.level;
+            showNextStep("step-3", "step-4");
+          });
+        });
+
+        startDebateBtn.addEventListener("click", async() => {
+          const motion = motionInput.value.trim();
+          if (motion && selectedFormat && selectedRole && selectedLevel) {
+            // MODIFIED: Show success toast
+            const response = await (await fetch('http://127.0.0.1:8080/api/v1/debate/create',{
+                method:'POST',
+                headers:{
+                    'Content-type':'application/json'
+                },
+                credentials:'include',
+                body:JSON.stringify({
+                    topic:motion,
+                    format:selectedFormat,
+                    level:selectedLevel,
+                    role:selectedRole
+                }),
+            })).json()
+            console.log(response)
+            if(response.success)
+            {
+                showToast("Starting debate session... Redirecting!");
+                // MODIFIED: Redirect after a short delay
+                setTimeout(() => {
+                  const url = `environment.html?format=${selectedFormat}&role=${encodeURIComponent(
+                    selectedRole
+                  )}&level=${selectedLevel}&motion=${encodeURIComponent(motion)}`;
+                  window.location.href = url;
+                }, 2000); // 2-second delay
+              } else {
+                  showToast("Please make all selections and enter a motion!", true);
+            }
+          }
+        });
+
+        // Highlight active navigation link (unchanged)
+        const navLinks = document.querySelectorAll(".nav-links a");
+        navLinks.forEach((link) => {
+          if (link.getAttribute("href") === "practice.html") {
+            link.classList.add("active");
+          } else {
+            link.classList.remove("active");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

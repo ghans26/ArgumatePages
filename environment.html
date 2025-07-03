@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArguMate - Live Debate Dashboard</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+      :root {
+        --bg-panel: #ffffff;
+        --text-primary: #212529;
+        --text-secondary: #6c757d;
+        --border-color: #e9ecef;
+        --accent-primary: #6a5acd;
+        --accent-secondary: #a3d8f4;
+        --accent-pink: #ffb3d9;
+        --accent-success: #198754;
+        --accent-warning: #ffc107;
+        --gradient: linear-gradient(
+          135deg,
+          var(--accent-pink),
+          var(--accent-secondary),
+          var(--accent-primary)
+        );
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--text-primary);
+        overflow-y: auto;
+        background: linear-gradient(135deg, #ffd1dc, #c7ceea, #d5f5e3, #fff3cd);
+        background-size: 400% 400%;
+        animation: pastel-gradient-animation 15s ease infinite;
+        cursor: none;
+      }
+
+      @keyframes pastel-gradient-animation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .custom-cursor {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background-color: #000;
+        border-radius: 50%;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        transition: transform 0.1s ease-out;
+      }
+
+      /* NEW: Keyframes for animations */
+      @keyframes slideUpFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes flow-gradient {
+        /* For flashy, flowing border */
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .main-header {
+        background-color: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 0 40px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        opacity: 0;
+        animation: slideUpFadeIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1)
+          forwards;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+      .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .logo-container h1 {
+        font-size: 1.4em;
+        color: var(--accent-primary);
+      }
+      .main-nav {
+        list-style: none;
+        display: flex;
+        gap: 25px;
+      }
+      .main-nav a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+      .main-nav a:hover {
+        color: var(--accent-primary);
+      }
+      .main-nav a.active {
+        color: var(--accent-primary);
+        font-weight: 600;
+      }
+      .user-profile {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--accent-primary);
+        cursor: pointer;
+      }
+
+      .dashboard-main {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+        max-width: 1440px;
+        margin: 24px auto;
+        padding: 0 40px;
+      }
+
+      .center-panel,
+      .tools-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .btn {
+        position: relative; /* For shine effect */
+        overflow: hidden; /* For shine effect */
+        display: inline-block;
+        text-align: center;
+        padding: 12px 18px;
+        border: none;
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #fff;
+      }
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+      .btn-gradient {
+        background-image: var(--gradient);
+        background-size: 200% auto;
+      }
+      .btn-gradient:hover {
+        background-position: right center;
+      }
+
+      /* NEW: Flashy shine effect for buttons */
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 75%;
+        height: 100%;
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: skewX(-25deg);
+      }
+      .btn:hover::before {
+        left: 150%;
+        transition: left 0.6s ease-in-out;
+      }
+
+      .panel {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        /* CHANGE: Making sections more curvy */
+        border-radius: 24px;
+        opacity: 0;
+        animation: slideUpFadeIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1)
+          forwards;
+        /* CHANGE: More fluid transition */
+        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+          box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      }
+      .panel:hover {
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Staggered animation delays */
+      .dashboard-main > * > .panel {
+        animation-delay: 0.3s;
+      }
+      .dashboard-main > * > .panel:nth-child(2) {
+        animation-delay: 0.4s;
+      }
+      .dashboard-main > * > .panel:nth-child(3) {
+        animation-delay: 0.5s;
+      }
+      .dashboard-main > * > .panel:nth-child(4) {
+        animation-delay: 0.6s;
+      }
+
+      .arena-header {
+        padding: 25px;
+      }
+      .arena-header h2 {
+        font-size: 1.6em;
+        margin-bottom: 8px;
+      }
+
+      .my-speech-panel {
+        border-left: 4px solid var(--accent-primary);
+        padding: 25px;
+      }
+      .my-speech-panel h4 {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+        color: var(--accent-primary);
+      }
+      .my-speech-panel li::before {
+        content: "✓";
+        color: var(--accent-success);
+        margin-right: 10px;
+        font-weight: bold;
+      }
+
+      .teams-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .team-panel {
+        padding: 25px;
+      }
+
+      /* CHANGE: Enhanced active speaker panel for "flashy" effect */
+      .team-panel.active-speaker {
+        box-shadow: 0 10px 30px rgba(106, 90, 205, 0.2);
+        border: 2px solid transparent;
+        background-image: var(--gradient),
+          linear-gradient(var(--bg-panel), var(--bg-panel));
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        background-size: 200% 200%;
+        animation: slideUpFadeIn 0.6s forwards, flow-gradient 3s ease infinite;
+      }
+
+      .team-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .team-header h3 {
+        font-size: 1.2em;
+      }
+      .timer {
+        font-size: 2.2em;
+        font-weight: 600;
+      }
+
+      .live-transcript {
+        padding: 25px;
+        flex-grow: 1;
+        font-family: "SF Mono", "Courier New", monospace;
+        font-size: 0.9em;
+      }
+      .log-entry .speaker {
+        font-weight: bold;
+        color: var(--accent-primary);
+      }
+
+      .tool-widget {
+        padding: 25px;
+      }
+      .tool-widget h4 {
+        font-size: 1em;
+        margin-bottom: 15px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .poi-widget .poi-alert {
+        background-color: #fff9e6;
+        border: 1px solid var(--accent-warning);
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 10px;
+      }
+      .poi-widget .poi-alert strong {
+        color: #b38600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="custom-cursor"></div>
+
+    <header class="main-header">
+      <div class="header-left">
+        <a href="#" class="logo-container">
+          <h1>ArguMate</h1>
+        </a>
+        <nav>
+          <ul class="main-nav">
+            <li><a href="#" class="active">Live Debate</a></li>
+            <li><a href="#">Practice</a></li>
+            <li><a href="#">Learn</a></li>
+            <li><a href="#">Progress</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="header-right">
+        <div class="user-profile"></div>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <div class="center-panel">
+        <section class="arena-header panel">
+          <h2>This House Would Implement a Universal Basic Income.</h2>
+          <p>
+            Format: British Parliamentary • Status:
+            <span style="color: var(--accent-success)">Live</span>
+          </p>
+        </section>
+
+        <section class="my-speech-panel panel">
+          <h4>✨ Your AI-Generated Speech Points:</h4>
+          <ul>
+            <li>
+              Introduce the core concept of UBI and its moral justification.
+            </li>
+            <li>
+              Present economic model: funding through carbon tax and closing tax
+              loopholes.
+            </li>
+            <li>
+              Address common counter-arguments: inflation and workforce
+              participation.
+            </li>
+          </ul>
+        </section>
+
+        <div class="teams-container">
+          <section class="team-panel panel active-speaker">
+            <div class="team-header">
+              <h3>Proposition</h3>
+              <div class="timer">06:45</div>
+            </div>
+            <p class="speaker-info"><strong>You are:</strong> Prime Minister</p>
+            <button class="btn btn-gradient">Generate My Speech</button>
+          </section>
+          <section class="team-panel panel">
+            <div class="team-header">
+              <h3>Opposition</h3>
+              <div class="timer">07:00</div>
+            </div>
+            <p class="speaker-info">
+              <strong>Next:</strong> Leader of the Opposition
+            </p>
+          </section>
+        </div>
+
+        <section class="live-transcript panel">
+          <p class="log-entry">
+            <span class="timestamp">[00:25]</span
+            ><span class="speaker">Prime Minister:</span
+            ><span> Honorable speaker...</span>
+          </p>
+        </section>
+      </div>
+
+      <aside class="tools-sidebar">
+        <section class="tool-widget panel">
+          <h4>⚠️ Incoming POIs</h4>
+          <div class="poi-widget">
+            <div class="poi-alert">
+              <p>
+                <strong>From Opp:</strong> "How will you prevent capital
+                flight?"
+              </p>
+            </div>
+          </div>
+        </section>
+        <section class="tool-widget panel">
+          <h4>😊 Live Sentiment</h4>
+        </section>
+        <section class="tool-widget panel">
+          <h4>🔴 Transcription</h4>
+          <button class="btn" style="background-color: var(--accent-success)">
+            Live
+          </button>
+        </section>
+      </aside>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const cursor = document.querySelector(".custom-cursor");
+        if (cursor) {
+          window.addEventListener("mousemove", (e) => {
+            cursor.style.left = e.clientX + "px";
+            cursor.style.top = e.clientY + "px";
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

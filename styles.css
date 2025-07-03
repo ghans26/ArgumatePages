@@ -1,0 +1,130 @@
+/* Custom styles for Argumate */
+.message-bubble {
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.user-message {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-left: auto;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.ai-message {
+  background: #f3f4f6;
+  color: #374151;
+  margin-right: auto;
+  border-radius: 18px 18px 18px 4px;
+}
+
+.role-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.prime-minister {
+  background: #dc2626;
+  color: white;
+}
+.leader-opposition {
+  background: #2563eb;
+  color: white;
+}
+.deputy-prime-minister {
+  background: #dc2626;
+  color: white;
+  opacity: 0.8;
+}
+.deputy-leader-opposition {
+  background: #2563eb;
+  color: white;
+  opacity: 0.8;
+}
+.member-government {
+  background: #fca5a5;
+  color: #7f1d1d;
+}
+.member-opposition {
+  background: #93c5fd;
+  color: #1e3a8a;
+}
+.government-whip {
+  background: #fed7aa;
+  color: #9a3412;
+}
+.opposition-whip {
+  background: #c7d2fe;
+  color: #3730a3;
+}
+
+.recording-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.analysis-card {
+  transition: all 0.3s ease;
+}
+
+.analysis-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar styling */
+#debateMessages::-webkit-scrollbar {
+  width: 6px;
+}
+
+#debateMessages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#debateMessages::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+#debateMessages::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Loading animation */
+.loading-dots {
+  display: inline-block;
+}
+
+.loading-dots::after {
+  content: "";
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%,
+  20% {
+    content: "";
+  }
+  40% {
+    content: ".";
+  }
+  60% {
+    content: "..";
+  }
+  80%,
+  100% {
+    content: "...";
+  }
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebateSphere - Login</title>
+    <style>
+        /* Global Styles (repeated for self-containment) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide scrollbars for full-page form */
+            background: linear-gradient(135deg, #FFD1DC, #C7CEEA, #D5F5E3, #FFF3CD); /* Pastel gradient colors */
+            background-size: 400% 400%;
+            animation: pastel-gradient-animation 15s ease infinite;
+            color: #333;
+            display: flex; /* Use flexbox for centering */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: none; /* Hide default cursor */
+        }
+
+        @keyframes pastel-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Custom Cursor Styles (repeated) */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            background-color: #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out;
+        }
+
+        .custom-cursor.active {
+            background-color: #555;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Form Container */
+        .form-container {
+            display: flex;
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly opaque white background */
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* Soft shadow */
+            overflow: hidden;
+            max-width: 900px;
+            width: 90%;
+            animation: fadeIn 1s ease-out; /* Fade in animation for the whole container */
+        }
+
+        /* Form Graphic Section */
+        .form-graphic {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background: linear-gradient(45deg, #C7CEEA, #D5F5E3); /* Pastel gradient for graphic side */
+            min-width: 300px; /* Ensure graphic has space */
+        }
+
+        .form-graphic svg {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            animation: float 5s ease-in-out infinite; /* Floating animation for SVG */
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Form Content Section */
+        .form-content {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            position: relative; /* For interactive graphics if any */
+        }
+
+        .form-content h2 {
+            font-size: 2.2em;
+            color: #6A5ACD; /* Pastel violet */
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-content h2::after {
+            content: '';
+            width: 60px;
+            height: 4px;
+            background-color: #A3D8F4; /* Pastel blue underline */
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 35px;
+            text-align: left; /* Align text inputs left */
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 10px;
+            border: none;
+            border-bottom: 2px solid #ccc;
+            background: transparent;
+            font-size: 1.1em;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            color: #555;
+            border-radius: 5px 5px 0 0; /* Rounded top corners */
+        }
+
+        .input-group input:focus {
+            border-bottom-color: #A3D8F4; /* Highlight on focus */
+            box-shadow: 0 2px 5px rgba(163, 216, 244, 0.3); /* Soft shadow on focus */
+        }
+
+        .input-group label {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            font-size: 1.1em;
+            color: #888;
+            pointer-events: none; /* Allows clicks through label to input */
+            transition: all 0.3s ease;
+        }
+
+        /* Floating label effect */
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            top: -10px; /* Move label up */
+            font-size: 0.85em; /* Shrink label */
+            color: #6A5ACD; /* Change label color */
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px 20px;
+            background-color: #FFB3D9; /* Soft pink */
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #FF8EB8; /* Darker pink */
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-switch {
+            margin-top: 30px;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .form-switch a {
+            color: #6A5ACD; /* Pastel violet for link */
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-switch a:hover {
+            color: #8A2BE2; /* Darker violet on hover */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-container {
+                flex-direction: column; /* Stack graphic and form vertically */
+                width: 95%;
+                max-width: 450px; /* Limit width for single column */
+            }
+            .form-graphic {
+                padding: 30px;
+            }
+            .form-content {
+                padding: 40px 30px;
+            }
+            .form-content h2 {
+                font-size: 1.8em;
+            }
+            .input-group input, .input-group label {
+                font-size: 1em;
+            }
+            .submit-btn {
+                font-size: 1.1em;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-cursor"></div>
+
+    <main class="form-container">
+        <div class="form-graphic">
+            <!-- Simple SVG of a key and lock to represent login -->
+            <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="80" r="50" stroke="#FFD1DC" stroke-width="10"/>
+                <rect x="75" y="120" width="50" height="60" rx="10" fill="#C7CEEA"/>
+                <rect x="90" y="140" width="20" height="30" rx="5" fill="#A3D8F4"/>
+                <circle cx="100" cy="155" r="5" fill="#FFF"/>
+                <path d="M100 80 L100 30 C100 15 115 0 130 0 L150 0 C165 0 180 15 180 30 L180 80" stroke="#FFB3D9" stroke-width="10"/>
+                <path d="M130 150 L160 150 L160 170 L130 170 Z" fill="#D5F5E3" transform="rotate(45 130 150)"/>
+            </svg>
+        </div>
+        <div class="form-content">
+            <h2>Welcome Back!</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="email" id="email" required placeholder=" ">
+                    <label for="email">Email</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" required placeholder=" ">
+                    <label for="password">Password</label>
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+            </form>
+            <p class="form-switch">Don't have an account? <a href="signup.html">Sign Up</a></p>
+        </div>
+    </main>
+
+    <script>
+        // Custom Cursor JavaScript
+        const customCursor = document.querySelector('.custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            customCursor.style.left = e.clientX + 'px';
+            customCursor.style.top = e.clientY + 'px';
+        });
+        document.addEventListener('mousedown', () => {
+            customCursor.classList.add('active');
+        });
+        document.addEventListener('mouseup', () => {
+            customCursor.classList.remove('active');
+        });
+
+        // Form Submission Logic (Placeholder)
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await (await fetch('http://127.0.0.1:8080/api/v1/login',{
+                method:'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body:JSON.stringify(
+                    {
+                        email,
+                        password
+                    }
+                ),
+                credentials: 'include' 
+            })).json()
+            console.log(response)
+            if(response.success)
+            {
+                console.log(document.cookie)
+                alert('Login Successful! Redirecting to Dashboard...');
+                window.location.href = 'learn.html';
+            }
+            else
+            {
+                alert('Login Attempt Failed')
+            }
+        });
+    </script>
+</body>
+</html>

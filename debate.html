@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argumate - Debate Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold text-gray-800">Argumate</h1>
+                <span id="userInfo" class="text-sm text-gray-600"></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="connectionStatus" class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full" id="statusIndicator"></div>
+                    <span class="text-sm text-gray-600" id="statusText">Disconnected</span>
+                </div>
+                <button id="logoutBtn" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Left Sidebar - Controls -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Debate Format Selection -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Debate Format</h3>
+                    <select id="debateFormat" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="british">British Parliamentary</option>
+                        <option value="asian">Asian Parliamentary</option>
+                    </select>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Your Role</h3>
+                    <select id="userRole" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="prime_minister">Prime Minister</option>
+                        <option value="leader_opposition">Leader of Opposition</option>
+                        <option value="deputy_prime_minister">Deputy Prime Minister</option>
+                        <option value="deputy_leader_opposition">Deputy Leader of Opposition</option>
+                        <option value="member_government">Member of Government</option>
+                        <option value="member_opposition">Member of Opposition</option>
+                        <option value="government_whip">Government Whip</option>
+                        <option value="opposition_whip">Opposition Whip</option>
+                    </select>
+                </div>
+
+                <!-- Audio Controls -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Audio Controls</h3>
+                    <div class="space-y-4">
+                        <button id="micButton" class="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition duration-200 flex items-center justify-center space-x-2">
+                            <i class="fas fa-microphone"></i>
+                            <span>Start Speaking</span>
+                        </button>
+                        <div class="text-center">
+                            <div id="recordingIndicator" class="hidden">
+                                <div class="animate-pulse text-red-600">
+                                    <i class="fas fa-circle text-xs"></i>
+                                    <span class="ml-2 text-sm">Recording...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Transcript -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Live Transcript</h3>
+                    <div id="liveTranscript" class="bg-gray-50 p-3 rounded-lg min-h-[100px] text-sm text-gray-700 border">
+                        <em class="text-gray-500">Your speech will appear here...</em>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content - Debate Window -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow">
+                    <!-- Debate Header -->
+                    <div class="border-b p-6">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold">Debate Room</h2>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-600">Format: <span id="currentFormat">British Parliamentary</span></span>
+                                <button id="startDebate" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                                    Start Debate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Debate Messages -->
+                    <div id="debateMessages" class="h-96 overflow-y-auto p-6 space-y-4">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-comments text-4xl mb-4"></i>
+                            <p>Welcome to the debate room! Select your format and role, then start the debate.</p>
+                        </div>
+                    </div>
+
+                    <!-- Debate Input -->
+                    <div class="border-t p-6">
+                        <div class="flex space-x-4">
+                            <input type="text" id="textInput" placeholder="Type your argument or use voice input..." 
+                                   class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button id="sendText" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div class="mt-6 bg-white rounded-lg shadow">
+            <div class="border-b p-6">
+                <h3 class="text-lg font-semibold">Speech Analysis</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Argument Structure -->
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">Argument Structure</h4>
+                        <div id="argumentAnalysis" class="text-sm text-blue-700">
+                            <em>Analysis will appear after speech...</em>
+                        </div>
+                    </div>
+
+                    <!-- Sentiment Analysis -->
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-2">Sentiment</h4>
+                        <div id="sentimentAnalysis" class="text-sm text-green-700">
+                            <em>Sentiment analysis will appear here...</em>
+                        </div>
+                    </div>
+
+                    <!-- Emotion Detection -->
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-purple-800 mb-2">Emotions</h4>
+                        <div id="emotionAnalysis" class="text-sm text-purple-700">
+                            <em>Emotion detection will appear here...</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- 
+    <script src="js/socket.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/debate.js"></script> -->
+</body>
+</html>
