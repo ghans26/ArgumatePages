@@ -3,534 +3,1550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Argumate - Master Parliamentary Debate with AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="home-styles.css">
+    <title>ArguMate - Master the Art of Debate</title>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* All existing styles preserved exactly */
+        body {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #c7ceea, #ffd1dc, #fff3cd, #d5f5e3);
+            background-size: 400% 400%;
+            animation: pastel-gradient-animation 15s ease infinite;
+            color: #333;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: none;
+            position: relative;
+        }
+
+        @keyframes pastel-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+            color: #6a5acd;
+        }
+
+        .floating-icon:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 8s;
+        }
+
+        .floating-icon:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+            animation-duration: 10s;
+        }
+
+        .floating-icon:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+            animation-duration: 7s;
+        }
+
+        .floating-icon:nth-child(4) {
+            bottom: 20%;
+            right: 10%;
+            animation-delay: 1s;
+            animation-duration: 9s;
+        }
+
+        .floating-icon:nth-child(5) {
+            top: 50%;
+            left: 5%;
+            animation-delay: 3s;
+            animation-duration: 11s;
+        }
+
+        .floating-icon:nth-child(6) {
+            top: 60%;
+            right: 25%;
+            animation-delay: 5s;
+            animation-duration: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            background-color: #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out;
+        }
+
+        .custom-cursor.active {
+            background-color: #555;
+            width: 20px;
+            height: 20px;
+        }
+
+        .dashboard-header {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 15px 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(8px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .dashboard-header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header .logo a {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #6a5acd;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .dashboard-header .logo a:hover {
+            color: #8a2be2;
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .nav-links li {
+            margin-left: 30px;
+            animation: fadeInRight 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .nav-links li:nth-child(1) { animation-delay: 0.2s; }
+        .nav-links li:nth-child(2) { animation-delay: 0.4s; }
+        .nav-links li:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+            padding: 8px 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(186, 130, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-links a:hover::before {
+            left: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(186, 130, 255, 0.2);
+            color: #6a5acd;
+            transform: translateY(-3px);
+        }
+
+        .home-main {
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 100px);
+            padding: 50px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            padding: 60px 40px;
+            max-width: 800px;
+            width: 100%;
+            animation: heroEntrance 1.2s ease-out forwards;
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(163, 216, 244, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            50% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+        }
+
+        @keyframes heroEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* New Illustration Styles */
+        .parliament-illustration {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .parliament-svg {
+            width: 300px;
+            height: 150px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .debate-podiums {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .podiums-svg {
+            width: 250px;
+            height: 100px;
+            animation: slideInFromLeft 1s ease-out 0.5s forwards;
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+
+        @keyframes slideInFromLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .parliament-seating {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .seating-svg {
+            width: 350px;
+            height: 120px;
+            animation: fadeInScale 1s ease-out 0.3s forwards;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .justice-scales {
+            margin: 40px 0 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .scales-svg {
+            width: 150px;
+            height: 90px;
+            animation: swing 3s ease-in-out infinite;
+        }
+
+        @keyframes swing {
+            0%, 100% {
+                transform: rotate(-2deg);
+            }
+            50% {
+                transform: rotate(2deg);
+            }
+        }
+
+        .books-illustration {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .books-svg {
+            width: 250px;
+            height: 60px;
+            animation: bookFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes bookFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .trophy-illustration {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .trophy-svg {
+            width: 150px;
+            height: 90px;
+            animation: trophyGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes trophyGlow {
+            from {
+                filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.3));
+            }
+            to {
+                filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+            }
+        }
+
+        .hero-title {
+            font-size: 3.5em;
+            font-weight: 700;
+            color: #5c4b51;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 15px;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from {
+                text-shadow: 0 0 5px rgba(106, 90, 205, 0.3);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(106, 90, 205, 0.6), 0 0 30px rgba(106, 90, 205, 0.4);
+            }
+        }
+
+        .hero-title::after {
+            content: "";
+            width: 120px;
+            height: 5px;
+            background: linear-gradient(90deg, #a3d8f4, #ffb3d9, #a3d8f4);
+            background-size: 200% 100%;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            animation: gradientSlide 2s ease-in-out infinite;
+        }
+
+        @keyframes gradientSlide {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.4em;
+            color: #6a5acd;
+            margin-bottom: 30px;
+            font-weight: 600;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-description {
+            font-size: 1.2em;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease-out 0.6s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out 0.9s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ffb3d9, #ff8eb8);
+            color: #fff;
+            padding: 18px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-7px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(45deg, #ff8eb8, #ff6b9d);
+        }
+
+        .cta-button.secondary {
+            background: linear-gradient(45deg, #a3d8f4, #7bc8e8);
+        }
+
+        .cta-button.secondary:hover {
+            background: linear-gradient(45deg, #7bc8e8, #5bb8d8);
+        }
+
+        .features-section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .features-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            padding: 60px 40px;
+            animation: slideInFromBottom 1s ease-out forwards;
+            opacity: 0;
+            transform: translateY(50px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #a3d8f4, #ffb3d9, #c7ceea, #d5f5e3);
+            background-size: 300% 100%;
+            animation: gradientSlide 3s ease-in-out infinite;
+        }
+
+        .features-title {
+            font-size: 2.5em;
+            color: #5c4b51;
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            padding-bottom: 15px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .features-title::after {
+            content: "";
+            width: 80px;
+            height: 5px;
+            background: linear-gradient(90deg, #a3d8f4, #ffb3d9);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            animation: expandContract 2s ease-in-out infinite;
+        }
+
+        @keyframes expandContract {
+            0%, 100% {
+                width: 80px;
+            }
+            50% {
+                width: 120px;
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background-color: #fff;
+            border: 2px solid rgba(186, 130, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            animation: cardEntrance 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(30px) rotateX(15deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #a3d8f4, #ffb3d9);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            background: linear-gradient(135deg, rgba(186, 130, 255, 0.1), rgba(163, 216, 244, 0.1));
+            border-color: #6a5acd;
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            color: #6a5acd;
+            animation: iconFloat 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            color: #8a2be2;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        @keyframes iconFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .feature-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #5c4b51;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .feature-card:hover .feature-title {
+            color: #6a5acd;
+        }
+
+        .feature-description {
+            font-size: 1em;
+            color: #666;
+            line-height: 1.5;
+            transition: color 0.3s ease;
+        }
+
+        .feature-card:hover .feature-description {
+            color: #555;
+        }
+
+        .stats-section {
+            padding: 60px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stats-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            animation: fadeInUp 1s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(163, 216, 244, 0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #6a5acd;
+            margin-bottom: 10px;
+            display: block;
+            animation: countUp 2s ease-out forwards;
+            background: linear-gradient(45deg, #6a5acd, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: #555;
+            font-weight: 600;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        .cta-section {
+            padding: 80px 20px 100px;
+            text-align: center;
+        }
+
+        .cta-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            padding: 60px 40px;
+            max-width: 700px;
+            margin: 0 auto;
+            animation: bounceIn 1s ease-out forwards;
+            opacity: 0;
+            transform: scale(0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 179, 217, 0.1), transparent);
+            animation: sweep 3s ease-in-out infinite;
+        }
+
+        @keyframes sweep {
+            0% {
+                transform: translateX(-100%) skewX(-15deg);
+            }
+            100% {
+                transform: translateX(100%) skewX(-15deg);
+            }
+        }
+
+        @keyframes bounceIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            60% {
+                transform: scale(1.05);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .cta-title {
+            font-size: 2.2em;
+            color: #5c4b51;
+            margin-bottom: 20px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-description {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .floating-elements {
+                display: none;
+            }
+
+            .dashboard-header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .nav-links li {
+                margin-left: 0;
+            }
+
+            .home-main {
+                padding-top: 120px;
+            }
+
+            .hero-container {
+                padding: 40px 20px;
+                margin: 10px;
+            }
+
+            .hero-title {
+                font-size: 2.5em;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2em;
+            }
+
+            .hero-description {
+                font-size: 1.1em;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-button {
+                font-size: 1.1em;
+                padding: 15px 30px;
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .features-container,
+            .stats-container,
+            .cta-container {
+                padding: 40px 20px;
+                margin: 10px;
+            }
+
+            .features-title {
+                font-size: 2em;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .feature-card {
+                padding: 25px 20px;
+            }
+
+            .feature-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .cta-title {
+                font-size: 1.8em;
+            }
+
+            .parliament-svg {
+                width: 250px;
+                height: 125px;
+            }
+
+            .podiums-svg {
+                width: 200px;
+                height: 80px;
+            }
+
+            .seating-svg {
+                width: 280px;
+                height: 100px;
+            }
+
+            .scales-svg {
+                width: 120px;
+                height: 70px;
+            }
+
+            .books-svg {
+                width: 200px;
+                height: 50px;
+            }
+
+            .trophy-svg {
+                width: 120px;
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .parliament-svg {
+                width: 200px;
+                height: 100px;
+            }
+
+            .podiums-svg {
+                width: 180px;
+                height: 70px;
+            }
+
+            .seating-svg {
+                width: 240px;
+                height: 85px;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-800">
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-balance-scale text-white text-lg"></i>
-                    </div>
-                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-700 to-indigo-800 bg-clip-text text-transparent">
-                        Argumate
-                    </span>
+<body>
+    <div class="custom-cursor"></div>
+
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <i data-lucide="message-square" class="floating-icon" size="48"></i>
+        <i data-lucide="users" class="floating-icon" size="40"></i>
+        <i data-lucide="target" class="floating-icon" size="44"></i>
+        <i data-lucide="book-open" class="floating-icon" size="42"></i>
+        <i data-lucide="trending-up" class="floating-icon" size="46"></i>
+        <i data-lucide="award" class="floating-icon" size="38"></i>
+    </div>
+
+    <header class="dashboard-header">
+        <nav>
+            <div class="logo">
+                <a href="/">ArguMate</a>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="/" class="active">Home</a>
+                </li>
+                <li>
+                    <a href="/learn">Learn</a>
+                </li>
+                <li>
+                    <a href="/topics">Practice</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="home-main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <!-- Parliament Building Illustration -->
+                <div class="parliament-illustration">
+                    <svg viewBox="0 0 400 200" class="parliament-svg">
+                        <defs>
+                            <linearGradient id="buildingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#f8f9fa" />
+                                <stop offset="100%" stop-color="#e9ecef" />
+                            </linearGradient>
+                            <linearGradient id="domeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#6a5acd" />
+                                <stop offset="100%" stop-color="#8a2be2" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Main Building -->
+                        <rect x="50" y="120" width="300" height="60" fill="url(#buildingGrad)" stroke="#6a5acd" stroke-width="2" />
+
+                        <!-- Columns -->
+                        <rect x="80" y="100" width="8" height="80" fill="#6a5acd" />
+                        <rect x="120" y="100" width="8" height="80" fill="#6a5acd" />
+                        <rect x="160" y="100" width="8" height="80" fill="#6a5acd" />
+                        <rect x="200" y="100" width="8" height="80" fill="#6a5acd" />
+                        <rect x="240" y="100" width="8" height="80" fill="#6a5acd" />
+                        <rect x="280" y="100" width="8" height="80" fill="#6a5acd" />
+                        <rect x="320" y="100" width="8" height="80" fill="#6a5acd" />
+
+                        <!-- Central Dome -->
+                        <ellipse cx="200" cy="100" rx="40" ry="30" fill="url(#domeGrad)" />
+                        <ellipse cx="200" cy="95" rx="35" ry="25" fill="#8a2be2" opacity="0.8" />
+
+                        <!-- Flag -->
+                        <line x1="200" y1="70" x2="200" y2="40" stroke="#6a5acd" stroke-width="3" />
+                        <polygon points="200,40 230,50 200,60" fill="#ff6b9d" />
+
+                        <!-- Windows -->
+                        <rect x="100" y="130" width="12" height="20" fill="#6a5acd" opacity="0.3" />
+                        <rect x="140" y="130" width="12" height="20" fill="#6a5acd" opacity="0.3" />
+                        <rect x="180" y="130" width="12" height="20" fill="#6a5acd" opacity="0.3" />
+                        <rect x="220" y="130" width="12" height="20" fill="#6a5acd" opacity="0.3" />
+                        <rect x="260" y="130" width="12" height="20" fill="#6a5acd" opacity="0.3" />
+                        <rect x="300" y="130" width="12" height="20" fill="#6a5acd" opacity="0.3" />
+
+                        <!-- Steps -->
+                        <rect x="60" y="175" width="280" height="5" fill="#6a5acd" opacity="0.4" />
+                        <rect x="70" y="180" width="260" height="5" fill="#6a5acd" opacity="0.3" />
+                        <rect x="80" y="185" width="240" height="5" fill="#6a5acd" opacity="0.2" />
+                    </svg>
                 </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Features</a>
-                    <a href="#methodology" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Methodology</a>
-                    <a href="#testimonials" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Testimonials</a>
-                    <a href="#about" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">About</a>
+
+                <h1 class="hero-title">ArguMate</h1>
+                <p class="hero-subtitle">Master the Art of Debate</p>
+                <p class="hero-description">
+                    Transform your debating skills with AI-powered practice sessions. Experience realistic debate scenarios,
+                    receive instant feedback, and elevate your argumentation abilities to new heights.
+                </p>
+
+                <!-- Debate Podiums Illustration -->
+                <div class="debate-podiums">
+                    <svg viewBox="0 0 300 120" class="podiums-svg">
+                        <defs>
+                            <linearGradient id="podiumGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#a3d8f4" />
+                                <stop offset="100%" stop-color="#7bc8e8" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Left Podium -->
+                        <rect x="20" y="60" width="60" height="40" fill="url(#podiumGrad)" stroke="#6a5acd" stroke-width="2" rx="5" />
+                        <rect x="30" y="50" width="40" height="15" fill="#6a5acd" rx="3" />
+                        <circle cx="50" cy="35" r="12" fill="#ffb3d9" stroke="#6a5acd" stroke-width="2" />
+                        <rect x="45" y="40" width="10" height="20" fill="#6a5acd" />
+
+                        <!-- Microphone -->
+                        <circle cx="50" cy="45" r="3" fill="#333" />
+                        <line x1="50" y1="48" x2="50" y2="55" stroke="#333" stroke-width="2" />
+
+                        <!-- Right Podium -->
+                        <rect x="220" y="60" width="60" height="40" fill="url(#podiumGrad)" stroke="#6a5acd" stroke-width="2" rx="5" />
+                        <rect x="230" y="50" width="40" height="15" fill="#6a5acd" rx="3" />
+                        <circle cx="250" cy="35" r="12" fill="#ffb3d9" stroke="#6a5acd" stroke-width="2" />
+                        <rect x="245" y="40" width="10" height="20" fill="#6a5acd" />
+
+                        <!-- Microphone -->
+                        <circle cx="250" cy="45" r="3" fill="#333" />
+                        <line x1="250" y1="48" x2="250" y2="55" stroke="#333" stroke-width="2" />
+
+                        <!-- Center Judge/Moderator -->
+                        <rect x="130" y="70" width="40" height="30" fill="#8a2be2" rx="5" />
+                        <circle cx="150" cy="55" r="10" fill="#ffb3d9" stroke="#6a5acd" stroke-width="2" />
+                        <rect x="147" y="60" width="6" height="15" fill="#6a5acd" />
+
+                        <!-- Gavel -->
+                        <rect x="140" y="75" width="20" height="4" fill="#8b4513" rx="2" />
+                        <rect x="148" y="72" width="4" height="10" fill="#8b4513" />
+                    </svg>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="index.html" class="px-4 py-2 text-blue-600 hover:text-blue-800 transition-colors font-medium">
-                        Sign In
-                    </a>
-                    <a href="index.html" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg hover:from-blue-700 hover:to-indigo-800 transition-all transform hover:scale-105 shadow-lg font-medium">
-                        Start Training
-                    </a>
+
+                <div class="hero-buttons">
+                    <a href="/topics" class="cta-button">Start Practicing</a>
+                    <a href="/learn" class="cta-button secondary">Learn Basics</a>
                 </div>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <!-- 3D Background -->
-        <div id="hero-3d" class="absolute inset-0 z-0"></div>
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="features-container animate-on-scroll">
+                <!-- Parliamentary Seating Illustration -->
+                <div class="parliament-seating">
+                    <svg viewBox="0 0 400 150" class="seating-svg">
+                        <defs>
+                            <radialGradient id="seatGrad" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#ffb3d9" />
+                                <stop offset="100%" stop-color="#ff8eb8" />
+                            </radialGradient>
+                        </defs>
+
+                        <!-- Speaker's Chair -->
+                        <rect x="180" y="20" width="40" height="30" fill="#6a5acd" rx="5" />
+                        <rect x="185" y="15" width="30" height="20" fill="#8a2be2" rx="3" />
+
+                        <!-- Government Benches (Left) -->
+                        <g class="government-benches">
+                            <rect x="50" y="70" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="70" y="70" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="90" y="70" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="110" y="70" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+
+                            <rect x="50" y="90" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="70" y="90" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="90" y="90" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="110" y="90" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+
+                            <rect x="50" y="110" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="70" y="110" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="90" y="110" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                            <rect x="110" y="110" width="15" height="10" fill="url(#seatGrad)" rx="2" />
+                        </g>
+
+                        <!-- Opposition Benches (Right) -->
+                        <g class="opposition-benches">
+                            <rect x="275" y="70" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="295" y="70" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="315" y="70" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="335" y="70" width="15" height="10" fill="#a3d8f4" rx="2" />
+
+                            <rect x="275" y="90" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="295" y="90" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="315" y="90" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="335" y="90" width="15" height="10" fill="#a3d8f4" rx="2" />
+
+                            <rect x="275" y="110" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="295" y="110" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="315" y="110" width="15" height="10" fill="#a3d8f4" rx="2" />
+                            <rect x="335" y="110" width="15" height="10" fill="#a3d8f4" rx="2" />
+                        </g>
+
+                        <!-- Center Aisle -->
+                        <line x1="200" y1="60" x2="200" y2="130" stroke="#6a5acd" stroke-width="3" stroke-dasharray="5,5" />
+
+                        <!-- Labels -->
+                        <text x="87" y="140" text-anchor="middle" fill="#6a5acd" font-size="12" font-weight="600">Government</text>
+                        <text x="312" y="140" text-anchor="middle" fill="#6a5acd" font-size="12" font-weight="600">Opposition</text>
+                    </svg>
+                </div>
+
+                <h2 class="features-title">Why Choose ArguMate?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i data-lucide="zap" class="feature-icon" size="60"></i>
+                        <h3 class="feature-title">AI-Powered Practice</h3>
+                        <p class="feature-description">
+                            Engage with intelligent AI opponents that adapt to your skill level and provide challenging, realistic
+                            debate experiences.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="book-open" class="feature-icon" size="60"></i>
+                        <h3 class="feature-title">Multiple Formats</h3>
+                        <p class="feature-description">
+                            Practice British Parliamentary, Asian Parliamentary, and other popular debate formats used in
+                            competitions worldwide.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="message-circle" class="feature-icon" size="60"></i>
+                        <h3 class="feature-title">Instant Feedback</h3>
+                        <p class="feature-description">
+                            Receive immediate, detailed feedback on your arguments, structure, and delivery to accelerate your
+                            improvement.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="users" class="feature-icon" size="60"></i>
+                        <h3 class="feature-title">Role-Based Training</h3>
+                        <p class="feature-description">
+                            Master different debate roles from Prime Minister to Opposition Whip, understanding unique
+                            responsibilities and strategies.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="trending-up" class="feature-icon" size="60"></i>
+                        <h3 class="feature-title">Progress Tracking</h3>
+                        <p class="feature-description">
+                            Monitor your improvement over time with detailed analytics and personalized recommendations for skill
+                            development.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="globe" class="feature-icon" size="60"></i>
+                        <h3 class="feature-title">Global Topics</h3>
+                        <p class="feature-description">
+                            Access a vast library of current and classic debate motions covering politics, ethics, economics, and
+                            social issues.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Scales of Justice Illustration -->
+                <div class="justice-scales">
+                    <svg viewBox="0 0 200 120" class="scales-svg">
+                        <defs>
+                            <linearGradient id="scaleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ffd700" />
+                                <stop offset="100%" stop-color="#ffb347" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Base -->
+                        <rect x="80" y="100" width="40" height="8" fill="#6a5acd" rx="4" />
+
+                        <!-- Main Pole -->
+                        <rect x="98" y="30" width="4" height="70" fill="#6a5acd" />
+
+                        <!-- Cross Bar -->
+                        <rect x="60" y="35" width="80" height="3" fill="#6a5acd" />
+
+                        <!-- Left Scale -->
+                        <circle cx="75" cy="50" r="15" fill="none" stroke="url(#scaleGrad)" stroke-width="2" />
+                        <line x1="75" y1="37" x2="75" y2="50" stroke="#6a5acd" stroke-width="2" />
+                        <line x1="60" y1="50" x2="90" y2="50" stroke="url(#scaleGrad)" stroke-width="2" />
+
+                        <!-- Right Scale -->
+                        <circle cx="125" cy="50" r="15" fill="none" stroke="url(#scaleGrad)" stroke-width="2" />
+                        <line x1="125" y1="37" x2="125" y2="50" stroke="#6a5acd" stroke-width="2" />
+                        <line x1="110" y1="50" x2="140" y2="50" stroke="url(#scaleGrad)" stroke-width="2" />
+
+                        <!-- Balance indicator -->
+                        <circle cx="100" cy="25" r="8" fill="#ffb3d9" stroke="#6a5acd" stroke-width="2" />
+                        <text x="100" y="30" text-anchor="middle" fill="#6a5acd" font-size="10" font-weight="bold">⚖</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stats-container animate-on-scroll">
+                <!-- Books and Documents Illustration -->
+                <div class="books-illustration">
+                    <svg viewBox="0 0 300 80" class="books-svg">
+                        <defs>
+                            <linearGradient id="bookGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ffb3d9" />
+                                <stop offset="100%" stop-color="#ff8eb8" />
+                            </linearGradient>
+                            <linearGradient id="bookGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#a3d8f4" />
+                                <stop offset="100%" stop-color="#7bc8e8" />
+                            </linearGradient>
+                            <linearGradient id="bookGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#c7ceea" />
+                                <stop offset="100%" stop-color="#b8b5ff" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Stack of Books -->
+                        <rect x="50" y="40" width="25" height="35" fill="url(#bookGrad1)" stroke="#6a5acd" stroke-width="1" />
+                        <rect x="52" y="42" width="21" height="2" fill="#6a5acd" />
+
+                        <rect x="80" y="35" width="25" height="40" fill="url(#bookGrad2)" stroke="#6a5acd" stroke-width="1" />
+                        <rect x="82" y="37" width="21" height="2" fill="#6a5acd" />
+
+                        <rect x="110" y="30" width="25" height="45" fill="url(#bookGrad3)" stroke="#6a5acd" stroke-width="1" />
+                        <rect x="112" y="32" width="21" height="2" fill="#6a5acd" />
+
+                        <rect x="140" y="38" width="25" height="37" fill="url(#bookGrad1)" stroke="#6a5acd" stroke-width="1" />
+                        <rect x="142" y="40" width="21" height="2" fill="#6a5acd" />
+
+                        <!-- Gavel -->
+                        <rect x="200" y="50" width="30" height="6" fill="#8b4513" rx="3" />
+                        <rect x="213" y="45" width="6" height="15" fill="#8b4513" />
+                        <circle cx="216" cy="42" r="4" fill="#ffd700" />
+
+                        <!-- Scroll/Document -->
+                        <ellipse cx="260" cy="55" rx="20" ry="15" fill="#f8f9fa" stroke="#6a5acd" stroke-width="2" />
+                        <line x1="245" y1="50" x2="275" y2="50" stroke="#6a5acd" stroke-width="1" />
+                        <line x1="245" y1="55" x2="275" y2="55" stroke="#6a5acd" stroke-width="1" />
+                        <line x1="245" y1="60" x2="275" y2="60" stroke="#6a5acd" stroke-width="1" />
+                    </svg>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="10000">0</span>
+                        <span class="stat-label">Practice Sessions</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="500">0</span>
+                        <span class="stat-label">Debate Topics</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="95">0</span>
+                        <span class="stat-label">Skill Improvement</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="24">0</span>
+                        <span class="stat-label">Hours Available</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="cta-container animate-on-scroll">
+                <!-- Trophy and Achievement Illustration -->
+                <div class="trophy-illustration">
+                    <svg viewBox="0 0 200 120" class="trophy-svg">
+                        <defs>
+                            <linearGradient id="trophyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ffd700" />
+                                <stop offset="50%" stop-color="#ffb347" />
+                                <stop offset="100%" stop-color="#ff8c00" />
+                            </linearGradient>
+                            <radialGradient id="gemGrad" cx="50%" cy="30%" r="50%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="100%" stop-color="#6a5acd" />
+                            </radialGradient>
+                        </defs>
+
+                        <!-- Trophy Base -->
+                        <rect x="70" y="90" width="60" height="15" fill="#8b4513" rx="7" />
+                        <rect x="75" y="85" width="50" height="10" fill="#a0522d" rx="5" />
+
+                        <!-- Trophy Stem -->
+                        <rect x="90" y="70" width="20" height="20" fill="url(#trophyGrad)" />
+
+                        <!-- Trophy Cup -->
+                        <path d="M 60 70 Q 60 40 100 40 Q 140 40 140 70 L 130 70 Q 130 50 100 50 Q 70 50 70 70 Z" fill="url(#trophyGrad)" />
+
+                        <!-- Trophy Handles -->
+                        <ellipse cx="50" cy="55" rx="8" ry="12" fill="none" stroke="url(#trophyGrad)" stroke-width="4" />
+                        <ellipse cx="150" cy="55" rx="8" ry="12" fill="none" stroke="url(#trophyGrad)" stroke-width="4" />
+
+                        <!-- Gem on top -->
+                        <polygon points="100,35 105,25 95,25" fill="url(#gemGrad)" stroke="#6a5acd" stroke-width="1" />
+
+                        <!-- Stars around trophy -->
+                        <polygon points="30,30 32,36 38,36 33,40 35,46 30,42 25,46 27,40 22,36 28,36" fill="#ffd700" />
+                        <polygon points="170,25 172,31 178,31 173,35 175,41 170,37 165,41 167,35 162,31 168,31" fill="#ffd700" />
+                        <polygon points="40,80 42,86 48,86 43,90 45,96 40,92 35,96 37,90 32,86 38,86" fill="#ffd700" />
+                        <polygon points="160,75 162,81 168,81 163,85 165,91 160,87 155,91 157,85 152,81 158,81" fill="#ffd700" />
+                    </svg>
+                </div>
+
+                <h2 class="cta-title">Ready to Become a Debate Champion?</h2>
+                <p class="cta-description">
+                    Join thousands of debaters who have improved their skills with ArguMate. Start your journey to becoming a
+                    confident, persuasive speaker today.
+                </p>
+                <div class="hero-buttons">
+                    <a href="/topics" class="cta-button">Begin Your Journey</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Custom Cursor JavaScript
+        const customCursor = document.querySelector(".custom-cursor");
         
-        <!-- Elegant Background Pattern -->
-        <div class="absolute inset-0 z-10 opacity-5">
-            <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23000000" fill-opacity="0.1"><circle cx="30" cy="30" r="2"/></g></svg>');"></div>
-        </div>
+        document.addEventListener("mousemove", (e) => {
+            customCursor.style.left = e.clientX + "px";
+            customCursor.style.top = e.clientY + "px";
+        });
 
-        <!-- Hero Content -->
-        <div class="relative z-20 container mx-auto px-6 text-center">
-            <div class="max-w-5xl mx-auto">
-                <!-- Prestigious Badge -->
-                <div class="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-full px-8 py-3 mb-8 shadow-lg animate-fade-in">
-                    <div class="w-6 h-6 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-crown text-white text-xs"></i>
-                    </div>
-                    <span class="text-sm font-semibold text-gray-700">Elite Parliamentary Debate Training</span>
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                </div>
+        document.addEventListener("mousedown", () => customCursor.classList.add("active"));
+        document.addEventListener("mouseup", () => customCursor.classList.remove("active"));
 
-                <h1 class="text-5xl md:text-7xl font-bold mb-8 animate-slide-up leading-tight">
-                    Master the Art of
-                    <span class="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-800 bg-clip-text text-transparent">
-                        Parliamentary Debate
-                    </span>
-                </h1>
+        // Animated Counter Function
+        function animateCounter(element) {
+            const target = parseInt(element.getAttribute("data-target"));
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
 
-                <p class="text-xl md:text-2xl text-gray-600 mb-12 animate-slide-up-delay leading-relaxed max-w-4xl mx-auto">
-                    Train with AI-powered opponents modeled after history's greatest parliamentary speakers. 
-                    <br class="hidden md:block">
-                    Develop world-class argumentation skills through immersive, real-time debate sessions.
-                </p>
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
 
-                <!-- Prestigious Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 animate-fade-in-delay">
-                    <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-blue-100 shadow-lg">
-                        <div class="text-4xl font-bold text-blue-600 mb-2" id="sessions-count">0</div>
-                        <div class="text-sm font-medium text-gray-600">Training Sessions</div>
-                        <div class="text-xs text-gray-500 mt-1">Completed Worldwide</div>
-                    </div>
-                    <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-indigo-100 shadow-lg">
-                        <div class="text-4xl font-bold text-indigo-600 mb-2" id="improvement-rate">0</div>
-                        <div class="text-sm font-medium text-gray-600">Average Improvement</div>
-                        <div class="text-xs text-gray-500 mt-1">In Argumentation Skills</div>
-                    </div>
-                    <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-blue-100 shadow-lg">
-                        <div class="text-4xl font-bold text-blue-700 mb-2" id="institutions-count">0</div>
-                        <div class="text-sm font-medium text-gray-600">Educational Institutions</div>
-                        <div class="text-xs text-gray-500 mt-1">Using Our Platform</div>
-                    </div>
-                </div>
+                if (target === 10000) {
+                    element.textContent = Math.floor(current).toLocaleString() + "+";
+                } else if (target === 500) {
+                    element.textContent = Math.floor(current) + "+";
+                } else if (target === 95) {
+                    element.textContent = Math.floor(current) + "%";
+                } else if (target === 24) {
+                    element.textContent = Math.floor(current) + "/7";
+                }
+            }, 16);
+        }
 
-                <!-- CTA Buttons -->
-                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center animate-slide-up-delay-2 margin-bottom:50px">
-                    <a href="index.html" class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-800 transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl">
-                        <span class="relative z-10">Begin Your Training</span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity"></div>
-                    </a>
-                    <button class="flex items-center space-x-3 px-10 py-4 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-xl hover:bg-white/90 transition-all shadow-lg hover:shadow-xl font-medium text-gray-700" onclick="playDemo()">
-                        <i class="fas fa-play-circle text-blue-600 text-xl"></i>
-                        <span>Watch Demonstration</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+        // Scroll Animation with Counter Animation
+        function animateOnScroll() {
+            const elements = document.querySelectorAll(".animate-on-scroll");
 
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div class="w-6 h-10 border-2 border-blue-400 rounded-full flex justify-center">
-                <div class="w-1 h-3 bg-blue-400 rounded-full mt-2 animate-pulse"></div>
-            </div>
-        </div>
-    </section>
+            elements.forEach((element) => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
 
-    <!-- Features Section -->
-    <section id="features" class="py-24 bg-white">
-        <div class="container mx-auto px-6 ">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-gray-800">
-                    Why Choose <span class="text-blue-600">Argumate?</span>
-                </h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    Experience the most advanced AI-powered debate training platform, 
-                    designed by parliamentary debate champions and powered by cutting-edge technology.
-                </p>
-            </div>
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add("animated");
 
-            <div class="grid md:grid-cols-3 gap-12">
-                <!-- Feature 1 -->
-                <div class="feature-card group">
-                    <div class="feature-icon">
-                        <i class="fas fa-microphone-alt"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Real-Time Speech Analysis</h3>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        Advanced speech recognition technology captures every nuance of your arguments, 
-                        providing instant feedback on delivery, pace, and clarity.
-                    </p>
-                    <div class="feature-highlight">
-                        <span class="text-blue-600 font-semibold">99.8% Accuracy</span>
-                        <span class="text-gray-500 text-sm ml-2">in speech recognition</span>
-                    </div>
-                </div>
+                    if (element.classList.contains("stats-container")) {
+                        const counters = element.querySelectorAll(".stat-number");
+                        counters.forEach((counter) => {
+                            if (!counter.classList.contains("animated")) {
+                                counter.classList.add("animated");
+                                animateCounter(counter);
+                            }
+                        });
+                    }
+                }
+            });
+        }
 
-                <!-- Feature 2 -->
-                <div class="feature-card group">
-                    <div class="feature-icon">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Historical AI Opponents</h3>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        Debate against AI models trained on the speaking patterns and argumentation 
-                        styles of legendary parliamentary figures from British and Asian traditions.
-                    </p>
-                    <div class="feature-highlight">
-                        <span class="text-blue-600 font-semibold">12 Historical Figures</span>
-                        <span class="text-gray-500 text-sm ml-2">available for training</span>
-                    </div>
-                </div>
+        // Parallax Effect for Floating Elements
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll(".floating-icon");
 
-                <!-- Feature 3 -->
-                <div class="feature-card group">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Advanced Analytics</h3>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        Comprehensive analysis of argument structure, logical flow, emotional impact, 
-                        and persuasive techniques with detailed improvement recommendations.
-                    </p>
-                    <div class="feature-highlight">
-                        <span class="text-blue-600 font-semibold">25+ Metrics</span>
-                        <span class="text-gray-500 text-sm ml-2">tracked and analyzed</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            parallaxElements.forEach((element, index) => {
+                const speed = 0.5 + index * 0.1;
+                const yPos = -(scrolled * speed);
+                element.style.transform = `translateY(${yPos}px) rotate(${scrolled * 0.1}deg)`;
+            });
+        }
 
-    <!-- Methodology Section -->
-    <section id="methodology" class="py-24 bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-gray-800">
-                    Our <span class="text-blue-600">Training Methodology</span>
-                </h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    A systematic approach to mastering parliamentary debate, refined through years of research and practice
-                </p>
-            </div>
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(animateOnScroll, 100);
 
-            <div class="max-w-6xl mx-auto">
-                <div class="grid md:grid-cols-2 gap-16 items-center">
-                    <!-- Left side - Steps -->
-                    <div class="space-y-8">
-                        <div class="methodology-step">
-                            <div class="step-number">01</div>
-                            <div class="step-content">
-                                <h3 class="text-2xl font-bold mb-3 text-gray-800">Assessment & Baseline</h3>
-                                <p class="text-gray-600 leading-relaxed">
-                                    Begin with a comprehensive evaluation of your current debate skills, 
-                                    identifying strengths and areas for improvement through AI analysis.
-                                </p>
-                            </div>
-                        </div>
+            const handleScroll = () => {
+                animateOnScroll();
+                updateParallax();
+            };
 
-                        <div class="methodology-step">
-                            <div class="step-number">02</div>
-                            <div class="step-content">
-                                <h3 class="text-2xl font-bold mb-3 text-gray-800">Structured Practice</h3>
-                                <p class="text-gray-600 leading-relaxed">
-                                    Engage in progressive training sessions with AI opponents, 
-                                    focusing on specific aspects of parliamentary procedure and argumentation.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="methodology-step">
-                            <div class="step-number">03</div>
-                            <div class="step-content">
-                                <h3 class="text-2xl font-bold mb-3 text-gray-800">Real-time Feedback</h3>
-                                <p class="text-gray-600 leading-relaxed">
-                                    Receive instant, detailed feedback on your performance, 
-                                    with specific recommendations for improvement and skill development.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="methodology-step">
-                            <div class="step-number">04</div>
-                            <div class="step-content">
-                                <h3 class="text-2xl font-bold mb-3 text-gray-800">Mastery & Certification</h3>
-                                <p class="text-gray-600 leading-relaxed">
-                                    Progress through increasingly challenging scenarios until you achieve 
-                                    mastery-level performance in parliamentary debate.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right side - Visual -->
-                    <div class="relative">
-                        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-blue-100">
-                            <div class="text-center mb-6">
-                                <h4 class="text-xl font-bold text-gray-800 mb-2">Training Progress</h4>
-                                <p class="text-gray-600 text-sm">Your journey to debate mastery</p>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <div class="progress-item">
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-sm font-medium text-gray-700">Argument Structure</span>
-                                        <span class="text-sm text-blue-600 font-semibold">85%</span>
-                                    </div>
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 85%"></div>
-                                    </div>
-                                </div>
-
-                                <div class="progress-item">
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-sm font-medium text-gray-700">Rebuttal Skills</span>
-                                        <span class="text-sm text-blue-600 font-semibold">72%</span>
-                                    </div>
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 72%"></div>
-                                    </div>
-                                </div>
-
-                                <div class="progress-item">
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-sm font-medium text-gray-700">Delivery & Presence</span>
-                                        <span class="text-sm text-blue-600 font-semibold">91%</span>
-                                    </div>
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 91%"></div>
-                                    </div>
-                                </div>
-
-                                <div class="progress-item">
-                                    <div class="flex justify-between mb-2">
-                                        <span class="text-sm font-medium text-gray-700">Parliamentary Procedure</span>
-                                        <span class="text-sm text-blue-600 font-semibold">68%</span>
-                                    </div>
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: 68%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Historical Figures Section -->
-    <section class="py-24 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-gray-800">
-                    Train with <span class="text-blue-600">Legendary Speakers</span>
-                </h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Our AI opponents are modeled after history's most influential parliamentary debaters and orators
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-4 gap-8">
-                <!-- Historical Figure Cards -->
-                <div class="historical-figure-card">
-                    <div class="figure-image">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-user-tie text-white text-2xl"></i>
-                        </div>
-                    </div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">Winston Churchill</h4>
-                    <p class="text-sm text-gray-600 mb-3">British Prime Minister</p>
-                    <p class="text-xs text-gray-500">Master of wartime rhetoric and parliamentary procedure</p>
-                </div>
-
-                <div class="historical-figure-card">
-                    <div class="figure-image">
-                        <div class="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-female text-white text-2xl"></i>
-                        </div>
-                    </div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">Margaret Thatcher</h4>
-                    <p class="text-sm text-gray-600 mb-3">Iron Lady</p>
-                    <p class="text-xs text-gray-500">Renowned for decisive argumentation and strong convictions</p>
-                </div>
-
-                <div class="historical-figure-card">
-                    <div class="figure-image">
-                        <div class="w-20 h-20 bg-gradient-to-br from-green-600 to-teal-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-user-graduate text-white text-2xl"></i>
-                        </div>
-                    </div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">Lee Kuan Yew</h4>
-                    <p class="text-sm text-gray-600 mb-3">Singapore's Founding Father</p>
-                    <p class="text-xs text-gray-500">Strategic thinking and pragmatic debate approach</p>
-                </div>
-
-                <div class="historical-figure-card">
-                    <div class="figure-image">
-                        <div class="w-20 h-20 bg-gradient-to-br from-orange-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-balance-scale text-white text-2xl"></i>
-                        </div>
-                    </div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">Tony Blair</h4>
-                    <p class="text-sm text-gray-600 mb-3">Former UK Prime Minister</p>
-                    <p class="text-xs text-gray-500">Modern parliamentary communication and persuasion</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="py-24 bg-gradient-to-br from-slate-50 to-blue-50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-gray-800">
-                    What Our <span class="text-blue-600">Students Say</span>
-                </h2>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="testimonial-card">
-                    <div class="mb-6">
-                        <div class="flex text-yellow-400 mb-4">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p class="text-gray-600 italic leading-relaxed">
-                            "Argumate transformed my debate skills completely. The AI opponents are incredibly realistic, 
-                            and the feedback is more detailed than any human coach I've worked with."
-                        </p>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-white font-bold">SJ</span>
-                        </div>
-                        <div>
-                            <h5 class="font-bold text-gray-800">Sarah Johnson</h5>
-                            <p class="text-sm text-gray-600">Oxford Debate Society President</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="mb-6">
-                        <div class="flex text-yellow-400 mb-4">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p class="text-gray-600 italic leading-relaxed">
-                            "The historical AI opponents are fascinating. Debating against Churchill's style 
-                            taught me more about rhetoric than years of traditional training."
-                        </p>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-white font-bold">ML</span>
-                        </div>
-                        <div>
-                            <h5 class="font-bold text-gray-800">Michael Lee</h5>
-                            <p class="text-sm text-gray-600">Harvard Law Student</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card">
-                    <div class="mb-6">
-                        <div class="flex text-yellow-400 mb-4">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p class="text-gray-600 italic leading-relaxed">
-                            "As a debate coach, I recommend Argumate to all my students. 
-                            The analytics provide insights I never could have given them manually."
-                        </p>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-blue-700 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-white font-bold">RP</span>
-                        </div>
-                        <div>
-                            <h5 class="font-bold text-gray-800">Dr. Rachel Patel</h5>
-                            <p class="text-sm text-gray-600">Cambridge Debate Coach</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-24 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div class="container mx-auto px-6 text-center">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-4xl md:text-6xl font-bold mb-8">
-                    Ready to Master
-                    <span class="text-blue-200">Parliamentary Debate?</span>
-                </h2>
-                <p class="text-xl mb-12 opacity-90 leading-relaxed">
-                    Join thousands of students and professionals who have elevated their debate skills with Argumate
-                </p>
-                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                    <a href="index.html" class="px-12 py-4 bg-white text-blue-600 rounded-xl font-bold text-xl hover:bg-blue-50 transition-all transform hover:scale-105 shadow-xl">
-                        Start Your Training Today
-                    </a>
-                    <div class="text-center">
-                        <p class="text-sm opacity-75">Free trial available • No commitment required</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-16 bg-gray-900 text-white">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-3 mb-6">
-                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-balance-scale text-white text-sm"></i>
-                        </div>
-                        <span class="text-xl font-bold">Argumate</span>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Empowering the next generation of parliamentary debaters through 
-                        advanced AI technology and proven training methodologies.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-6 text-white">Platform</h4>
-                    <ul class="space-y-3 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Methodology</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">API Access</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-6 text-white">Resources</h4>
-                    <ul class="space-y-3 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Research Papers</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Case Studies</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Support</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-6 text-white">Connect</h4>
-                    <div class="flex space-x-4 mb-6">
-                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
-                            <i class="fab fa-linkedin text-sm"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
-                            <i class="fab fa-twitter text-sm"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
-                            <i class="fas fa-envelope text-sm"></i>
-                        </a>
-                    </div>
-                    <p class="text-xs text-gray-500">
-                        contact@argumate.com<br>
-                        +1 (555) 123-4567
-                    </p>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; 2024 Argumate. All rights reserved. | Privacy Policy | Terms of Service</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="js/home-animations.js"></script>
-    <script src="js/3d-parliamentary-scene.js"></script>
+            window.addEventListener("scroll", handleScroll);
+        });
+    </script>
 </body>
 </html>
