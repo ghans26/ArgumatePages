@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArguMate - Debate Room</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+      /* Global Styles */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        overflow-x: hidden;
+        background: linear-gradient(135deg, #c7ceea, #ffd1dc, #fff3cd, #d5f5e3);
+        background-size: 400% 400%;
+        animation: pastel-gradient-animation 15s ease infinite;
+        color: #333;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        cursor: none;
+        min-height: 100vh;
+        position: relative;
+      }
+      
+      /* Floating Background Elements */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 80%, rgba(163, 216, 244, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 179, 217, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(199, 206, 234, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 1;
+      }
+      
+      @keyframes pastel-gradient-animation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      
+      /* Custom Cursor */
+      .custom-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 10px;
+        height: 10px;
+        background-color: #6a5acd;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s ease-out, height 0.2s ease-out,
+          background-color 0.2s ease-out;
+      }
+      .custom-cursor.active {
+        background-color: #8a2be2;
+        width: 20px;
+        height: 20px;
+      }
+      
+      /* Header */
+      .dashboard-header {
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 15px 50px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(15px);
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 50;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        animation: slideDown 0.8s ease-out;
+        border-bottom: 3px solid transparent;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
+                          linear-gradient(90deg, #a3d8f4, #ffb3d9, #c7ceea);
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+      }
+      
+      @keyframes slideDown {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      
+      .dashboard-header nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+      }
+      
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        animation: fadeInLeft 0.8s ease-out 0.2s forwards;
+        opacity: 0;
+      }
+      
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      .logo a {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: #6a5acd;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+      }
+      
+      .logo a::before {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9);
+        transition: width 0.3s ease;
+        border-radius: 2px;
+      }
+      
+      .logo a:hover {
+        color: #8a2be2;
+        transform: scale(1.05);
+      }
+      
+      .logo a:hover::before {
+        width: 100%;
+      }
+      
+      .user-info {
+        font-size: 0.9em;
+        color: #666;
+        background: linear-gradient(135deg, rgba(186, 130, 255, 0.15), rgba(163, 216, 244, 0.15));
+        padding: 10px 18px;
+        border-radius: 25px;
+        border: 2px solid rgba(186, 130, 255, 0.2);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .user-info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .user-info:hover::before {
+        left: 100%;
+      }
+      
+      .user-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(186, 130, 255, 0.3);
+      }
+      
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        animation: fadeInRight 0.8s ease-out 0.4s forwards;
+        opacity: 0;
+      }
+      
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      .connection-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 8px 15px;
+        border-radius: 20px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .connection-status:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #e74c3c;
+        animation: pulse 2s infinite;
+        position: relative;
+      }
+      
+      .status-indicator::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        opacity: 0;
+        animation: ripple 2s infinite;
+      }
+      
+      .status-indicator.connected {
+        background-color: #27ae60;
+      }
+      
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      
+      @keyframes ripple {
+        0% {
+          opacity: 1;
+          transform: scale(0.8);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.4);
+        }
+      }
+      
+      .logout-btn {
+        color: #e74c3c;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 10px 18px;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: rgba(231, 76, 60, 0.1);
+        border: 2px solid rgba(231, 76, 60, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .logout-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(231, 76, 60, 0.2), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .logout-btn:hover::before {
+        left: 100%;
+      }
+      
+      .logout-btn:hover {
+        background-color: rgba(231, 76, 60, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+      }
+      
+      /* Main Container */
+      .main-container {
+        padding-top: 100px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 40px;
+        position: relative;
+        z-index: 2;
+      }
+      
+      .debate-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease-out 0.6s forwards;
+        opacity: 0;
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* Sidebar */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+      }
+      
+      .sidebar-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        padding: 30px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: cardSlideIn 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      
+      .sidebar-card:nth-child(1) { animation-delay: 0.1s; }
+      .sidebar-card:nth-child(2) { animation-delay: 0.2s; }
+      .sidebar-card:nth-child(3) { animation-delay: 0.3s; }
+      .sidebar-card:nth-child(4) { animation-delay: 0.4s; }
+      
+      @keyframes cardSlideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      .sidebar-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9, #c7ceea);
+        border-radius: 25px 25px 0 0;
+      }
+      
+      .sidebar-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        border-color: rgba(186, 130, 255, 0.4);
+      }
+      
+      .sidebar-card h3 {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #5c4b51;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+      }
+      
+      .sidebar-card h3 i {
+        color: #6a5acd;
+        font-size: 1.2em;
+        transition: all 0.3s ease;
+      }
+      
+      .sidebar-card:hover h3 i {
+        color: #8a2be2;
+        transform: scale(1.1) rotate(5deg);
+      }
+      
+      .sidebar-card h3::after {
+        content: "";
+        width: 30px;
+        height: 3px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9);
+        border-radius: 2px;
+        margin-left: auto;
+        transition: width 0.3s ease;
+      }
+      
+      .sidebar-card:hover h3::after {
+        width: 50px;
+      }
+      
+      /* Selected Format/Role Display */
+      .selected-display {
+        background: linear-gradient(135deg, rgba(163, 216, 244, 0.2), rgba(255, 179, 217, 0.2));
+        padding: 20px;
+        border-radius: 20px;
+        border: 2px solid rgba(106, 90, 205, 0.3);
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #5c4b51;
+        text-align: center;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .selected-display::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+      }
+      
+      .selected-display:hover::before {
+        left: 100%;
+      }
+      
+      .selected-display:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(106, 90, 205, 0.3);
+        border-color: #6a5acd;
+      }
+      
+      .format-badge, .role-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 6px 15px;
+        border-radius: 25px;
+        font-size: 0.8em;
+        font-weight: 600;
+        margin-left: 10px;
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .role-badge {
+        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        box-shadow: 0 3px 10px rgba(78, 205, 196, 0.3);
+      }
+      
+      .format-badge:hover, .role-badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+      
+      .mic-button {
+        width: 100%;
+        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        color: white;
+        padding: 18px 25px;
+        border: none;
+        border-radius: 20px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .mic-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .mic-button:hover::before {
+        left: 100%;
+      }
+      
+      .mic-button:hover {
+        background: linear-gradient(135deg, #ff5252, #ff7373);
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(255, 107, 107, 0.5);
+      }
+      
+      .mic-button.recording {
+        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        animation: recordingPulse 1.5s infinite;
+        box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+      }
+      
+      @keyframes recordingPulse {
+        0%, 100% {
+          transform: scale(1);
+          box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 15px 35px rgba(78, 205, 196, 0.6);
+        }
+      }
+      
+      .recording-indicator {
+        text-align: center;
+        margin-top: 15px;
+        color: #e74c3c;
+        font-size: 0.9em;
+        font-weight: 600;
+        animation: fadeInUp 0.3s ease-out;
+      }
+      
+      .recording-indicator.hidden {
+        display: none;
+      }
+      
+      .recording-indicator i {
+        animation: blink 1s infinite;
+      }
+      
+      @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+      }
+      
+      .live-transcript {
+        background: linear-gradient(135deg, rgba(245, 245, 245, 0.9), rgba(250, 250, 250, 0.8));
+        padding: 25px;
+        border-radius: 20px;
+        min-height: 120px;
+        font-size: 0.95em;
+        color: #666;
+        border: 2px solid rgba(186, 130, 255, 0.2);
+        line-height: 1.6;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .live-transcript::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+      
+      .live-transcript:hover::before {
+        transform: scaleX(1);
+      }
+      
+      .live-transcript:hover {
+        border-color: rgba(186, 130, 255, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(186, 130, 255, 0.2);
+      }
+      
+      /* POI Styles */
+      #input-pois {
+        width: 100%;
+        padding: 15px;
+        border-radius: 15px;
+        border: 2px solid rgba(186, 130, 255, 0.2);
+        resize: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        margin-top: 15px;
+      }
+      
+      #input-pois:focus {
+        outline: none;
+        border-color: #a3d8f4;
+        box-shadow: 0 0 15px rgba(163, 216, 244, 0.3);
+        background: rgba(255, 255, 255, 0.95);
+      }
+      
+      #userRole {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid rgba(186, 130, 255, 0.2);
+        border-radius: 15px;
+        font-size: 1em;
+        background: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+      }
+      
+      #userRole:focus {
+        outline: none;
+        border-color: #a3d8f4;
+        box-shadow: 0 0 15px rgba(163, 216, 244, 0.3);
+      }
+      
+      #send-poi {
+        margin-top: 15px;
+        width: 100%;
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+      }
+      
+      #send-poi:hover {
+        background: linear-gradient(135deg, #45a049, #3d8b40);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+      }
+      
+      /* Main Content - Debate Window */
+      .debate-main {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        backdrop-filter: blur(15px);
+        border-radius: 30px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        animation: slideInRight 0.8s ease-out 0.3s forwards;
+        opacity: 0;
+        transform: translateX(30px);
+        position: relative;
+      }
+      
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      .debate-main::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9, #c7ceea, #d5f5e3);
+        background-size: 300% 100%;
+        animation: gradientSlide 3s ease-in-out infinite;
+      }
+      
+      @keyframes gradientSlide {
+        0%, 100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+      
+      .debate-header {
+        padding: 30px 35px;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        background: linear-gradient(135deg, rgba(163, 216, 244, 0.15), rgba(255, 179, 217, 0.15));
+        position: relative;
+      }
+      
+      .debate-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .debate-header h2 {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: #5c4b51;
+        position: relative;
+      }
+      
+      .debate-header h2::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9);
+        border-radius: 2px;
+      }
+      
+      .debate-header-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      
+      .format-info {
+        font-size: 0.9em;
+        color: #666;
+        background: linear-gradient(135deg, rgba(186, 130, 255, 0.15), rgba(163, 216, 244, 0.15));
+        padding: 10px 18px;
+        border-radius: 25px;
+        border: 2px solid rgba(186, 130, 255, 0.2);
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      
+      .format-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(186, 130, 255, 0.3);
+      }
+      
+      .start-debate-btn {
+        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 20px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .start-debate-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .start-debate-btn:hover::before {
+        left: 100%;
+      }
+      
+      .start-debate-btn:hover {
+        background: linear-gradient(135deg, #45b7aa, #3d8b64);
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(78, 205, 196, 0.5);
+      }
+      
+      .debate-messages {
+        height: 400px;
+        overflow-y: auto;
+        padding: 35px;
+        background: linear-gradient(135deg, rgba(199, 206, 234, 0.08), rgba(255, 209, 220, 0.08));
+        position: relative;
+      }
+      
+      .welcome-message {
+        text-align: center;
+        color: #666;
+        padding: 80px 30px;
+        animation: fadeIn 1s ease-out;
+      }
+      
+      .welcome-message i {
+        font-size: 4em;
+        color: #a3d8f4;
+        margin-bottom: 25px;
+        display: block;
+        animation: float 3s ease-in-out infinite;
+      }
+      
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      
+      .welcome-message p {
+        font-size: 1.1em;
+        line-height: 1.6;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      
+      .debate-input {
+        padding: 30px 35px;
+        border-top: 2px solid rgba(0, 0, 0, 0.05);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+      }
+      
+      .input-group {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      
+      .text-input {
+        flex: 1;
+        padding: 18px 25px;
+        border: 2px solid rgba(186, 130, 255, 0.2);
+        border-radius: 30px;
+        font-size: 1em;
+        background: rgba(255, 255, 255, 0.9);
+        color: #555;
+        outline: none;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .text-input:focus {
+        border-color: #a3d8f4;
+        box-shadow: 0 0 20px rgba(163, 216, 244, 0.4);
+        background: rgba(255, 255, 255, 1);
+      }
+      
+      .send-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 18px 25px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .send-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .send-btn:hover::before {
+        left: 100%;
+      }
+      
+      .send-btn:hover {
+        background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.5);
+      }
+      
+      /* Analysis Panel & Info */
+      .analysis-panel, .info {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        backdrop-filter: blur(15px);
+        border-radius: 30px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        margin-top: 30px;
+        animation: fadeInUp 0.8s ease-out 0.8s forwards;
+        opacity: 0;
+        position: relative;
+      }
+      
+      .analysis-panel::before, .info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #a3d8f4, #ffb3d9, #c7ceea, #d5f5e3);
+        background-size: 300% 100%;
+        animation: gradientSlide 3s ease-in-out infinite;
+      }
+      
+      .analysis-header {
+        padding: 30px 35px;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        background: linear-gradient(135deg, rgba(163, 216, 244, 0.15), rgba(255, 179, 217, 0.15));
+      }
+      
+      .analysis-header h3 {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: #5c4b51;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .analysis-header h3 i {
+        color: #6a5acd;
+        font-size: 1.2em;
+      }
+      
+      .analysis-content {
+        padding: 35px;
+      }
+      
+      .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+      }
+      
+      .analysis-card {
+        padding: 30px;
+        border-radius: 25px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        animation: cardFadeIn 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      
+      .analysis-card:nth-child(1) { animation-delay: 0.1s; }
+      .analysis-card:nth-child(2) { animation-delay: 0.2s; }
+      .analysis-card:nth-child(3) { animation-delay: 0.3s; }
+      
+      @keyframes cardFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .analysis-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 25px 25px 0 0;
+        transition: transform 0.3s ease;
+        transform: scaleX(0);
+      }
+      
+      .analysis-card:hover::before {
+        transform: scaleX(1);
+      }
+      
+      .analysis-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+      
+      .analysis-card.argument {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.08));
+        border-color: rgba(102, 126, 234, 0.3);
+      }
+      
+      .analysis-card.argument::before {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+      }
+      
+      .analysis-card.sentiment {
+        background: linear-gradient(135deg, rgba(78, 205, 196, 0.15), rgba(78, 205, 196, 0.08));
+        border-color: rgba(78, 205, 196, 0.3);
+      }
+      
+      .analysis-card.sentiment::before {
+        background: linear-gradient(90deg, #4ecdc4, #44a08d);
+      }
+      
+      .analysis-card.emotion {
+        background: linear-gradient(135deg, rgba(155, 89, 182, 0.15), rgba(155, 89, 182, 0.08));
+        border-color: rgba(155, 89, 182, 0.3);
+      }
+      
+      .analysis-card.emotion::before {
+        background: linear-gradient(90deg, #9b59b6, #8e44ad);
+      }
+      
+      .analysis-card h4 {
+        font-size: 1.3em;
+        font-weight: 600;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .analysis-card.argument h4 {
+        color: #667eea;
+      }
+      
+      .analysis-card.sentiment h4 {
+        color: #4ecdc4;
+      }
+      
+      .analysis-card.emotion h4 {
+        color: #9b59b6;
+      }
+      
+      .analysis-card h4 i {
+        font-size: 1.2em;
+        transition: transform 0.3s ease;
+      }
+      
+      .analysis-card:hover h4 i {
+        transform: scale(1.1) rotate(5deg);
+      }
+      
+      .analysis-card .content {
+        color: #666;
+        font-size: 1em;
+        line-height: 1.6;
+        font-style: italic;
+      }
+      
+      /* Notes Download Button */
+      #notes-download {
+        margin-top: 15px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+      }
+      
+      #notes-download:hover {
+        background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+      
+      /* Speaker Card Styles */
+      .speaker-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+        margin-bottom: 25px;
+        padding: 20px 25px;
+        border-left: 5px solid #4b7bec;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .speaker-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(75, 123, 236, 0.1), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .speaker-card:hover::before {
+        left: 100%;
+      }
+      
+      .speaker-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+      }
+      
+      .speaker-header {
+        font-weight: 700;
+        font-size: 1.2em;
+        margin-bottom: 15px;
+        color: #2d3436;
+      }
+      
+      .statement {
+        margin-left: 25px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+      }
+      
+      .statement:last-child {
+        border-bottom: none;
+      }
+      
+      .statement span {
+        font-weight: 600;
+        color: #0984e3;
+      }
+      
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #a3d8f4, #ffb3d9);
+        border-radius: 10px;
+        transition: background 0.3s ease;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #8cc8e8, #ff9fd1);
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .debate-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        .sidebar {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .dashboard-header {
+          padding: 15px 20px;
+        }
+        .dashboard-header nav {
+          flex-direction: column;
+          gap: 15px;
+        }
+        .header-left,
+        .header-right {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .main-container {
+          padding-top: 140px;
+          padding-left: 15px;
+          padding-right: 15px;
+        }
+        .sidebar {
+          grid-template-columns: 1fr;
+        }
+        .debate-messages {
+          height: 300px;
+        }
+        .analysis-grid {
+          grid-template-columns: 1fr;
+        }
+        .input-group {
+          flex-direction: column;
+        }
+        .text-input {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+<body>
+    <div class="custom-cursor"></div>
+    <!-- Header -->
+    <header class="dashboard-header">
+      <nav>
+        <div class="header-left">
+          <div class="logo">
+            <a href="dashboard.html">ArguMate</a>
+          </div>
+          <span id="userInfo" class="user-info">Welcome, Debater!</span>
+        </div>
+        <div class="header-right">
+          <div id="connectionStatus" class="connection-status">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span id="statusText">Disconnected</span>
+          </div>
+          <a href="#" id="logoutBtn" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </div>
+      </nav>
+    </header>
+    <div class="main-container">
+      <div class="debate-grid">
+        <!-- Left Sidebar - Controls -->
+        <div class="sidebar">
+          <!-- Selected Debate Format Display -->
+          <div class="sidebar-card">
+            <h3><i class="fas fa-cogs"></i> Selected Format</h3>
+            <div class="selected-display">
+              <span id="selectedFormat">British Parliamentary</span>
+              <span class="format-badge">Format</span>
+            </div>
+          </div>
+          <!-- Selected Role Display -->
+          <div class="sidebar-card">
+            <h3><i class="fas fa-user-tie"></i> Your Role</h3>
+            <div class="selected-display" style="display: flex; justify-content: center; align-items: center;">
+              <p id="selectedRole">Prime Minister</p>
+              <p class="role-badge">Role</p>
+            </div>
+          </div>
+          <!-- Audio Controls -->
+          <div class="sidebar-card">
+            <h3><i class="fas fa-microphone"></i> Audio Controls</h3>
+            <button id="micButton" class="mic-button">
+              <i class="fas fa-microphone"></i>
+              <span>Start Speaking</span>
+            </button>
+            <div id="recordingIndicator" class="recording-indicator hidden">
+              <i class="fas fa-circle"></i>
+              <span>Recording...</span>
+            </div>
+          </div>
+          <!-- Current Transcript & POI -->
+          <div class="sidebar-card">
+            <h3><i class="fas fa-file-text"></i> Point of Information</h3>
+            <!-- Live POIs will appear here -->
+            <div id="liveTranscript" class="live-transcript">
+              <em>Your POIs will appear here...</em>
+              <!-- POI List -->
+              <div id="POI" class="poi-container" style="margin-top: 10px;"></div>
+            </div>
+            <!-- POI Input -->
+            <textarea id="input-pois"
+              placeholder="Enter your POI..."
+              rows="3"
+              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; resize: none; font-family: Arial, sans-serif; font-size: 14px;">
+            </textarea>
+            <!-- Role Selector -->
+            <div class="bg-white rounded-lg shadow p-4" style="margin-top: 10px;">
+              <h3 class="text-base font-semibold mb-2">Whom to Send POI</h3>
+              <select id="userRole"
+                class="w-full p-2 border border-gray-300 rounded-lg"
+                style="font-size: 1em;">
+              </select>
+            </div>  <!-- Send Button -->  <button id="send-poi"
+    style="margin-top: 10px; width: 100%; padding: 10px 15px; background-color: #4CAF50; color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
+    Send POI
+  </button></div>
+        </div>
+        <!-- Main Content - Debate Window -->
+        <div class="debate-main">
+          <!-- Debate Header -->
+          <div class="debate-header">
+            <div class="debate-header-content">
+              <h2>Debate Room</h2>
+              <div class="debate-header-info">
+                <span class="format-info">
+                  Format: <span id="currentFormat">British Parliamentary</span>
+                </span>
+                <button id="startDebate" class="start-debate-btn">
+                  <i class="fas fa-play"></i> Start Debate
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Debate Messages -->
+          <div id="debateMessages" class="debate-messages">
+            <div class="welcome-message">
+              <i class="fas fa-comments"></i>
+              <p>
+                Welcome to the debate room! Your selected format and role are
+                displayed. Click "Start Debate" to begin.
+              </p>
+            </div>
+          </div>
+          <!-- Debate Input -->
+          <div class="debate-input">
+            <div class="input-group">
+              <input
+                type="text"
+                id="textInput"
+                placeholder="Type your argument or use voice input..."
+                class="text-input"
+              />
+              <button id="sendText" class="send-btn">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+         <div class="points">
+         <div class="analysis-grid">
+            <!-- Argument Structure -->
+                        <!-- Notes -->
+            <div class="analysis-card sentiment">
+              <h4>
+                <i class="fas fa-comments"></i>
+                Notes
+              </h4>
+              <div id="notesAnalysis" class="content">
+                Your notes will appear here...
+              </div>
+              <button id="notes-download">
+                Download
+              </button>
+            </div>
+        </div>
+      </div>
+      </div>
+      <!-- Analysis Panel -->
+      <div class="analysis-panel">
+        <div class="analysis-header">
+          <h3><i class="fas fa-chart-line"></i> Speech Analysis</h3>
+        </div>
+        <div class="analysis-content">
+          <div class="analysis-grid">
+            <!-- Argument Structure -->
+            <div class="analysis-card argument">
+              <h4>
+                <i class="fas fa-sitemap"></i>
+                Argument Structure
+              </h4>
+              <div id="argumentAnalysis" class="content">
+                Analysis will appear after speech...
+              </div>
+            </div>
+            <!-- Sentiment Analysis -->
+            <div class="analysis-card sentiment">
+              <h4>
+                <i class="fas fa-heart"></i>
+                Sentiment
+              </h4>
+              <div id="sentimentAnalysis" class="content">
+                Sentiment analysis will appear here...
+              </div>
+            </div>
+            <!-- Emotion Detection -->
+            <div class="analysis-card emotion">
+              <h4>
+                <i class="fas fa-smile"></i>
+                Emotions
+              </h4>
+              <div id="emotionAnalysis" class="content">
+                Emotion detection will appear here...
+              </div>
+            </div>
+          </div>
+        </div>
+            </div>
+    </div>
+
+    <script>
+      // Custom Cursor JavaScript
+      const customCursor = document.querySelector(".custom-cursor");
+      document.addEventListener("mousemove", (e) => {
+        customCursor.style.left = e.clientX + "px";
+        customCursor.style.top = e.clientY + "px";
+      });
+      document.addEventListener("mousedown", () =>
+        customCursor.classList.add("active")
+      );
+      document.addEventListener("mouseup", () =>
+        customCursor.classList.remove("active")
+      );
+    </script>
+  </body>
+</html>
